@@ -100,6 +100,18 @@ func (c *liveClient) ListResources(ctx context.Context, kind kubemvk8s.ResourceK
 		return c.listNamespacesRows(ctx, opts)
 	case kubemvk8s.ResourceCRDs:
 		return c.listCRDRows(ctx)
+	case kubemvk8s.ResourceStatefulSets:
+		return c.listStatefulSets(ctx, opts)
+	case kubemvk8s.ResourceDaemonSets:
+		return c.listDaemonSets(ctx, opts)
+	case kubemvk8s.ResourceJobs:
+		return c.listJobs(ctx, opts)
+	case kubemvk8s.ResourceCronJobs:
+		return c.listCronJobs(ctx, opts)
+	case kubemvk8s.ResourceHPA:
+		return c.listHPA(ctx, opts)
+	case kubemvk8s.ResourcePDB:
+		return c.listPDB(ctx, opts)
 	default:
 		return nil, fmt.Errorf("unsupported kind %s", kind)
 	}

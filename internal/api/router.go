@@ -10,7 +10,7 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.3.0-phase2"
+const APIVersion = "0.4.0-phase3"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
@@ -21,7 +21,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "2", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "3", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -50,6 +50,12 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	execHandler := handlers.ExecWSHandler{Authenticator: deps.Authenticator, Connector: deps.Connector}
 	mux.Handle("GET /api/v1/ws/clusters/{clusterID}/exec", execHandler)
+
+	workloadsHandler := handlers.WorkloadsHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/workloads/{kind}/{namespace}/{name}/rollout", http.HandlerFunc(workloadsHandler.Rollout))
+	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/{kind}/{namespace}/{name}/scale", http.HandlerFunc(workloadsHandler.Scale))
+	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/{kind}/{namespace}/{name}/restart", http.HandlerFunc(workloadsHandler.Restart))
+	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/deployments/{namespace}/{name}/rollback", http.HandlerFunc(workloadsHandler.Rollback))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 

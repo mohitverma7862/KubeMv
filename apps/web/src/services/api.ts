@@ -4,9 +4,11 @@ import type {
   Principal,
   ResourceDetail,
   PodContainer,
+  MutationResult,
   PortForwardSession,
   ResourceKindPath,
   ResourceRow,
+  RolloutStatus,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -107,4 +109,24 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(body),
     }),
+  rolloutStatus: (token: string, clusterID: string, kind: ResourceKindPath, namespace: string, name: string) =>
+    request<RolloutStatus>(`/api/v1/clusters/${clusterID}/workloads/${kind}/${namespace}/${name}/rollout`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  scaleWorkload: (token: string, clusterID: string, kind: ResourceKindPath, namespace: string, name: string, replicas: number) =>
+    request<MutationResult>(`/api/v1/clusters/${clusterID}/workloads/${kind}/${namespace}/${name}/scale`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ replicas }),
+    }),
+  restartWorkload: (token: string, clusterID: string, kind: ResourceKindPath, namespace: string, name: string) =>
+    request<MutationResult>(`/api/v1/clusters/${clusterID}/workloads/${kind}/${namespace}/${name}/restart`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  rollbackDeployment: (token: string, clusterID: string, namespace: string, name: string, revision: number) =>
+    request<MutationResult>(
+      `/api/v1/clusters/${clusterID}/workloads/deployments/${namespace}/${name}/rollback?revision=${revision}`,
+      { method: 'POST', headers: { Authorization: `Bearer ${token}` } },
+    ),
 }

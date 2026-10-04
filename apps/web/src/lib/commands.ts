@@ -19,6 +19,12 @@ export const resourceCommands: CommandDefinition[] = [
   { id: 'configmaps', title: 'ConfigMaps', aliases: [':configmap', ':cm'], kind: 'configmaps' },
   { id: 'secrets', title: 'Secrets (metadata)', aliases: [':secret', ':secrets'], kind: 'secrets' },
   { id: 'crds', title: 'CRDs', aliases: [':crd', ':crds'], kind: 'crds' },
+  { id: 'statefulsets', title: 'StatefulSets', aliases: [':sts', ':statefulsets'], kind: 'statefulsets' },
+  { id: 'daemonsets', title: 'DaemonSets', aliases: [':ds', ':daemonsets'], kind: 'daemonsets' },
+  { id: 'jobs', title: 'Jobs', aliases: [':job', ':jobs'], kind: 'jobs' },
+  { id: 'cronjobs', title: 'CronJobs', aliases: [':cronjob', ':cronjobs'], kind: 'cronjobs' },
+  { id: 'hpa', title: 'HPA', aliases: [':hpa'], kind: 'hpa' },
+  { id: 'pdb', title: 'PDB', aliases: [':pdb'], kind: 'pdb' },
 ]
 
 export function parseColonCommand(input: string): { kind?: ResourceKindPath; filter?: string; namespace?: string } {

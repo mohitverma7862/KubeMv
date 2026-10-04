@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0-phase3] - 2026-10-04
+
+### Added
+
+- Advanced workload resource types (StatefulSet, DaemonSet, Job, CronJob, HPA, PDB)
+- Deployment rollout status and workload mutations (scale, restart, rollback) with audit ids
+- Fast Mode workload operations UI with confirmation dialogs
+
 ## [0.3.0-phase2] - 2026-10-04
 
 ### Added
