@@ -10,7 +10,7 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.7.0-phase6"
+const APIVersion = "0.8.0-phase7"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
@@ -22,7 +22,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "6", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "7", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -68,6 +68,9 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	securityHandler := handlers.SecurityHandler{Connector: deps.Connector}
 	protected.Handle("GET /api/v1/clusters/{clusterID}/security/summary", http.HandlerFunc(securityHandler.Summary))
+
+	gitopsHandler := handlers.GitOpsHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/gitops/overview", http.HandlerFunc(gitopsHandler.Overview))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 

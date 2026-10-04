@@ -6,6 +6,7 @@ import { FastModePage } from './pages/FastModePage'
 import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { SecurityPage } from './pages/SecurityPage'
+import { GitOpsPage } from './pages/GitOpsPage'
 import { TopologyPage } from './pages/TopologyPage'
 import { ObservabilityPage } from './pages/ObservabilityPage'
 import { VisualModePage } from './pages/VisualModePage'
@@ -37,6 +38,7 @@ function ProtectedApp() {
         <Route path="network" element={<TopologyPage />} />
         <Route path="observability" element={<ObservabilityPage />} />
         <Route path="security" element={<SecurityPage />} />
+        <Route path="gitops" element={<GitOpsPage />} />
       </Route>
     </Routes>
   )

@@ -21,6 +21,7 @@ const navItems = [
   { to: '/topology', label: 'Topology / XRay' },
   { to: '/observability', label: 'Observability' },
   { to: '/workloads', label: 'Workloads' },
+  { to: '/gitops', label: 'GitOps' },
   { to: '/network', label: 'Network' },
   { to: '/security', label: 'Security' },
 ]
@@ -118,7 +119,7 @@ export function AppShell({ clusters }: { clusters: ClusterRef[] }) {
       </div>
 
       <footer className="flex items-center justify-between border-t border-[var(--color-kp-border)] bg-[var(--color-kp-surface)] px-4 py-2 text-xs text-[var(--color-kp-muted)]">
-        <span>Phase 6 — RBAC explorer, security posture score, policy hints</span>
+        <span>Phase 7 — GitOps apps, manifest drift, pipeline hooks</span>
         <span>Fast / Visual context: {clusterID} / {namespace}</span>
       </footer>
     </div>

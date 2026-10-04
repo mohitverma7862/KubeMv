@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0-phase7] - 2026-10-04
+
+### Added
+
+- GitOps overview API with applications, manifest drift, and pipeline hooks
+- GitOps explorer UI at `/gitops`
+- Live discovery of GitOps-managed Deployments with sync/drift heuristics
+
 ## [0.7.0-phase6] - 2026-10-04
 
 ### Added
