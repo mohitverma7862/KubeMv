@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0-phase6] - 2026-10-04
+
+### Added
+
+- Security summary API with RBAC explorer data and policy hints
+- Security posture UI with grade, findings, and binding risk levels
+- Live heuristics for privileged bindings, NetworkPolicy gaps, and runAsNonRoot
+
 ## [0.6.0-phase5] - 2026-10-04
 
 ### Added

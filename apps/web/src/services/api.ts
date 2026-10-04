@@ -13,6 +13,7 @@ import type {
   ObservabilityDashboard,
   MetricsQueryResult,
   ScrapeTarget,
+  SecuritySummary,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -166,6 +167,12 @@ export const api = {
   observabilityTargets: (token: string, clusterID: string, namespace?: string) => {
     const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
     return request<ScrapeTarget[]>(`/api/v1/clusters/${clusterID}/observability/targets${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  },
+  securitySummary: (token: string, clusterID: string, namespace?: string) => {
+    const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
+    return request<SecuritySummary>(`/api/v1/clusters/${clusterID}/security/summary${qs}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
   },

@@ -178,6 +178,42 @@ export interface ObservabilityPreset {
   series: MetricSeries
 }
 
+export interface SecurityStats {
+  roleBindings: number
+  clusterRoleBindings: number
+  highFindings: number
+  mediumFindings: number
+  lowFindings: number
+}
+
+export interface RBACBinding {
+  kind: string
+  namespace?: string
+  name: string
+  roleRef: string
+  subjects: string[]
+  risk: string
+}
+
+export interface PolicyFinding {
+  id: string
+  severity: string
+  category: string
+  title: string
+  message: string
+  resource: string
+  remediation: string
+}
+
+export interface SecuritySummary {
+  namespace: string
+  score: number
+  grade: string
+  stats: SecurityStats
+  rbac: RBACBinding[]
+  findings: PolicyFinding[]
+}
+
 export interface ObservabilityDashboard {
   namespace: string
   kind: string

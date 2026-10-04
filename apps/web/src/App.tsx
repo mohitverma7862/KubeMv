@@ -5,7 +5,7 @@ import { FastModePage } from './pages/FastModePage'
 // workloads route reuses Fast Mode explorer in Phase 1
 import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
-import { PlaceholderPage } from './pages/PlaceholderPage'
+import { SecurityPage } from './pages/SecurityPage'
 import { TopologyPage } from './pages/TopologyPage'
 import { ObservabilityPage } from './pages/ObservabilityPage'
 import { VisualModePage } from './pages/VisualModePage'
@@ -36,7 +36,7 @@ function ProtectedApp() {
         <Route path="topology" element={<TopologyPage />} />
         <Route path="network" element={<TopologyPage />} />
         <Route path="observability" element={<ObservabilityPage />} />
-        <Route path="security" element={<PlaceholderPage title="Security" />} />
+        <Route path="security" element={<SecurityPage />} />
       </Route>
     </Routes>
   )
