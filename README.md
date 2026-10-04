@@ -1,67 +1,60 @@
 # KubeMv
 
-The intelligent command center for Kubernetes.
+**Advanced Kubernetes Operations Platform** — K9s speed with a modern GUI, security, GitOps, and optional AI assistance.
 
-Phase 0 is the architecture and operator-shell foundation. It signs an operator in, stores cluster registry metadata, and enforces a plugin permission boundary. It does not call the Kubernetes API.
+**Status:** Phase 0 (foundation)  
+**Version:** `0.1.0-phase0`
 
-## Layout
+## Product modes
 
-```text
-api/openapi.yaml          HTTP contract
-backend/                  Go API
-desktop/                  React operator UI
-desktop/src-tauri/        Tauri desktop shell
-docs/                     Architecture, security, and phase notes
-```
+- **Fast Mode** — keyboard-first operator workflows (K9s-inspired)
+- **Visual Mode** — dashboards, topology, and dense operational views
 
-The desktop shell renders the React UI. The UI talks to the local Go API. Kubernetes credentials, when a later phase accepts a server-side reference, stay in the API process. The browser and the Tauri webview do not receive kubeconfigs or secret values.
+## Repository structure
 
-## Run
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/PHASE-0.md](docs/PHASE-0.md).
 
-Use a bootstrap password of at least 12 characters. Do not commit it.
+## Development
 
-```bash
-export KUBEMV_BOOTSTRAP_USERNAME=admin
-export KUBEMV_BOOTSTRAP_PASSWORD='replace-with-a-long-password'
-cd backend && go run ./cmd/kubemv
-```
+### Prerequisites
 
-The API listens on `127.0.0.1:8787`.
+- Go 1.22+
+- Node.js 20+ (for `apps/web`)
+- `kubectl` (installed by `.cursor/install.sh` in Cloud Agents)
+
+### Install
 
 ```bash
-cd desktop && npm install && npm run dev
+bash .cursor/install.sh
+cd apps/web && npm ci
 ```
 
-Open `http://127.0.0.1:1420`.
-
-The Tauri shell loads that same UI:
+### Run API + UI
 
 ```bash
-cd desktop && npm run tauri dev
+# Terminal 1
+go run ./cmd/server
+
+# Terminal 2
+cd apps/web && npm run dev
 ```
 
-## Phase 0 boundaries
+Open `http://localhost:5173` and sign in with any username (dev auth).
 
-Signed-in operators can:
-
-- read process health and the capability list
-- register, list, and remove cluster metadata
-- list plugin manifests compiled into the process
-
-They cannot:
-
-- watch or mutate Kubernetes resources
-- read secret values
-- upload or execute plugins
-- retrieve a kubeconfig reference after it is stored
-
-Kubernetes watches, logs, exec, and the rest of the product phases are not in this build.
-
-## Checks
+### Test & build
 
 ```bash
-make check
-make e2e
+go test ./...
+cd apps/web && npm test && npm run build
 ```
 
-See [docs/development.md](docs/development.md), [docs/architecture.md](docs/architecture.md), and [docs/security.md](docs/security.md).
+## CLI
+
+```bash
+go build -o bin/kubemv ./cmd/kubemv
+./bin/kubemv version
+```
+
+## License
+
+See [LICENSE](LICENSE).
