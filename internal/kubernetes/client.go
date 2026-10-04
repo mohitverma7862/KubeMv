@@ -21,6 +21,7 @@ type ClusterClient interface {
 	QueryMetrics(ctx context.Context, query MetricsQuery) (MetricsQueryResult, error)
 	ListScrapeTargets(ctx context.Context, namespace string) ([]ScrapeTarget, error)
 	GetObservabilityDashboard(ctx context.Context, namespace, kind, name string) (ObservabilityDashboard, error)
+	GetSecuritySummary(ctx context.Context, namespace string) (SecuritySummary, error)
 }
 
 // Connector establishes cluster clients from server-managed credentials.

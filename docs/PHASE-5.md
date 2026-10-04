@@ -30,4 +30,4 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## Next (Phase 6)
 
-Security posture views, RBAC explorer, and policy hints (per product roadmap).
+See [PHASE-6.md](PHASE-6.md).
