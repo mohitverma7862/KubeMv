@@ -40,6 +40,10 @@ dist/
 # Rust
 target/
 
+# Python
+__pycache__/
+*.pyc
+
 # KubeMv
 backend/bin/
 playwright-report/
