@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0-phase2] - 2026-10-04
+
+### Added
+
+- Pod logs API (current/previous, multi-container, search)
+- WebSocket exec terminal (stub + live SPDY)
+- Port-forward session API and Fast Mode pod operations UI (logs, exec, xterm)
+
 ## [0.2.0-phase1] - 2026-10-04
 
 ### Added

@@ -11,6 +11,8 @@ type ClusterClient interface {
 	ListResources(ctx context.Context, kind ResourceKindPath, opts ListOptions) ([]ResourceRow, error)
 	GetResource(ctx context.Context, kind ResourceKindPath, namespace, name string) (ResourceDetail, error)
 	ListCRDs(ctx context.Context) ([]CRDInfo, error)
+	ListPodContainers(ctx context.Context, namespace, podName string) ([]PodContainer, error)
+	GetPodLogs(ctx context.Context, namespace, podName string, opts LogOptions) (string, error)
 }
 
 // Connector establishes cluster clients from server-managed credentials.

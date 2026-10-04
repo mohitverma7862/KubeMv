@@ -3,6 +3,8 @@ import type {
   ClusterRef,
   Principal,
   ResourceDetail,
+  PodContainer,
+  PortForwardSession,
   ResourceKindPath,
   ResourceRow,
 } from './types'
@@ -73,4 +75,36 @@ export const api = {
       `/api/v1/clusters/${clusterID}/resources/${kind}/${namespace || '_'}/${name}`,
       { headers: { Authorization: `Bearer ${token}` } },
     ),
+  podContainers: (token: string, clusterID: string, namespace: string, name: string) =>
+    request<PodContainer[]>(`/api/v1/clusters/${clusterID}/pods/${namespace}/${name}/containers`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  podLogs: (
+    token: string,
+    clusterID: string,
+    namespace: string,
+    name: string,
+    params: { container?: string; previous?: boolean; q?: string; tail?: number },
+  ) => {
+    const search = new URLSearchParams()
+    if (params.container) search.set('container', params.container)
+    if (params.previous) search.set('previous', 'true')
+    if (params.q) search.set('q', params.q)
+    if (params.tail) search.set('tail', String(params.tail))
+    const qs = search.toString()
+    return request<{ logs: string }>(
+      `/api/v1/clusters/${clusterID}/pods/${namespace}/${name}/logs${qs ? `?${qs}` : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    ).then((r) => r.logs)
+  },
+  listPortForwards: (token: string, clusterID: string) =>
+    request<PortForwardSession[]>(`/api/v1/clusters/${clusterID}/portforwards`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  createPortForward: (token: string, clusterID: string, body: Record<string, unknown>) =>
+    request<PortForwardSession>(`/api/v1/clusters/${clusterID}/portforwards`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    }),
 }
