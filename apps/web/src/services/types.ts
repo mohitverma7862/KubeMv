@@ -143,3 +143,49 @@ export interface PortForwardSession {
   status: string
   url: string
 }
+
+export interface MetricSample {
+  timestamp: string
+  value: number
+}
+
+export interface MetricSeries {
+  labels: Record<string, string>
+  points: MetricSample[]
+}
+
+export interface MetricsQueryResult {
+  resultType: string
+  series: MetricSeries[]
+}
+
+export interface ScrapeTarget {
+  namespace: string
+  kind: string
+  name: string
+  job: string
+  instance: string
+  up: boolean
+  lastScrape: string
+  labels: Record<string, string>
+}
+
+export interface ObservabilityPreset {
+  id: string
+  title: string
+  unit: string
+  query: string
+  series: MetricSeries
+}
+
+export interface ObservabilityDashboard {
+  namespace: string
+  kind: string
+  name: string
+  presets: ObservabilityPreset[]
+  targets: ScrapeTarget[]
+  prometheusUrl?: string
+  grafanaUrl?: string
+  lokiUrl?: string
+  logDeepLink?: string
+}

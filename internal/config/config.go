@@ -14,6 +14,9 @@ type Config struct {
 	ShutdownTimeout time.Duration
 	Environment     string
 	EnableDevAuth   bool
+	PrometheusURL   string
+	GrafanaURL      string
+	LokiURL         string
 }
 
 // Load reads configuration from environment variables with safe defaults.
@@ -25,6 +28,9 @@ func Load() Config {
 		ShutdownTimeout: durationEnv("KUBEMV_SHUTDOWN_TIMEOUT", 10*time.Second),
 		Environment:     envOr("KUBEMV_ENV", "development"),
 		EnableDevAuth:   envBool("KUBEMV_DEV_AUTH", true),
+		PrometheusURL:   envOr("KUBEMV_PROMETHEUS_URL", ""),
+		GrafanaURL:      envOr("KUBEMV_GRAFANA_URL", ""),
+		LokiURL:         envOr("KUBEMV_LOKI_URL", ""),
 	}
 }
 

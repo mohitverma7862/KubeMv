@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0-phase5] - 2026-10-04
+
+### Added
+
+- Observability dashboard, metrics query, and scrape target APIs
+- Optional Prometheus HTTP proxy via `KUBEMV_PROMETHEUS_URL`
+- Observability UI with metric charts and unified links to logs / external tools
+
 ## [0.5.0-phase4] - 2026-10-04
 
 ### Added

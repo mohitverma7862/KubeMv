@@ -28,6 +28,7 @@ func New(opts Options) *Server {
 	router := api.NewRouter(api.Dependencies{
 		Authenticator: opts.Authenticator,
 		Connector:     opts.Connector,
+		PrometheusURL: opts.Config.PrometheusURL,
 	})
 	srv := &http.Server{
 		Addr:         opts.Config.HTTPAddr,
