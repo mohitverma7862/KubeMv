@@ -8,11 +8,17 @@ import (
 
 // MetaHandler exposes product metadata for the frontend shell.
 type MetaHandler struct {
-	Phase   string
-	Version string
+	Phase      string
+	Version    string
+	AIEnabled  bool
+	Description string
 }
 
 func (h MetaHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+	desc := h.Description
+	if desc == "" {
+		desc = "KubeMv operations platform"
+	}
 	httputil.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"name":        "KubeMv",
 		"tagline":     "Advanced Kubernetes Operations Platform",
@@ -20,7 +26,7 @@ func (h MetaHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 		"version":     h.Version,
 		"fastMode":    true,
 		"visualMode":  true,
-		"aiEnabled":   false,
-		"description": "Phase 0 foundation — architecture, abstractions, and UI shell",
+		"aiEnabled":   h.AIEnabled,
+		"description": desc,
 	})
 }

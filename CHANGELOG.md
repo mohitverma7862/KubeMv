@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.0-phase8] - 2026-10-04
+
+### Added
+
+- AI assist bundle API with rule-based triage and runbook suggestions
+- Guarded automation hook dry-run endpoint (no mutations)
+- AI Assist UI at `/assist`; meta `aiEnabled` flag
+
 ## [0.8.0-phase7] - 2026-10-04
 
 ### Added
