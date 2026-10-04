@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0-phase4] - 2026-10-04
+
+### Added
+
+- Topology/XRay API and stub dependency graph for payment-api workload
+- React Flow resource graph with health overlay and workload/network/dependency modes
+- Topology navigation from Visual Mode, Topology page, and Fast Mode resource details
+
 ## [0.4.0-phase3] - 2026-10-04
 
 ### Added

@@ -9,6 +9,7 @@ import type {
   ResourceKindPath,
   ResourceRow,
   RolloutStatus,
+  TopologyGraph,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -129,4 +130,19 @@ export const api = {
       `/api/v1/clusters/${clusterID}/workloads/deployments/${namespace}/${name}/rollback?revision=${revision}`,
       { method: 'POST', headers: { Authorization: `Bearer ${token}` } },
     ),
+  topology: (
+    token: string,
+    clusterID: string,
+    params: { mode?: string; namespace?: string; rootName?: string; q?: string },
+  ) => {
+    const search = new URLSearchParams()
+    if (params.mode) search.set('mode', params.mode)
+    if (params.namespace) search.set('namespace', params.namespace)
+    if (params.rootName) search.set('rootName', params.rootName)
+    if (params.q) search.set('q', params.q)
+    const qs = search.toString()
+    return request<TopologyGraph>(`/api/v1/clusters/${clusterID}/topology${qs ? `?${qs}` : ''}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  },
 }

@@ -17,6 +17,7 @@ type ClusterClient interface {
 	ScaleWorkload(ctx context.Context, kind ResourceKindPath, namespace, name string, replicas int32) (MutationResult, error)
 	RestartWorkload(ctx context.Context, kind ResourceKindPath, namespace, name string) (MutationResult, error)
 	RollbackDeployment(ctx context.Context, namespace, name string, revision int64) (MutationResult, error)
+	GetTopology(ctx context.Context, query TopologyQuery) (TopologyGraph, error)
 }
 
 // Connector establishes cluster clients from server-managed credentials.

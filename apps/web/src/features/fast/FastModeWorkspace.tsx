@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { KPDataGrid } from '../../design-system/KPDataGrid'
 import { KPFilterBar } from '../../design-system/KPFilterBar'
 import { KPYamlPanel } from '../../design-system/KPYamlPanel'
@@ -87,6 +88,12 @@ export function FastModeWorkspace() {
           {selected ? (
             <div className="mt-3 space-y-2 text-sm">
               <div className="text-lg font-semibold">{selected.name}</div>
+              <Link
+                className="text-xs text-[var(--color-kp-accent)] hover:underline"
+                to={`/topology?root=${encodeURIComponent(selected.name)}`}
+              >
+                Open in topology graph
+              </Link>
               <div>Status: {selected.status}</div>
               <div>Age: {selected.age}</div>
               {selected.extra ? (

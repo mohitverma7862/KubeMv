@@ -10,7 +10,7 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.4.0-phase3"
+const APIVersion = "0.5.0-phase4"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
@@ -21,7 +21,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "3", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "4", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -56,6 +56,9 @@ func NewRouter(deps Dependencies) http.Handler {
 	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/{kind}/{namespace}/{name}/scale", http.HandlerFunc(workloadsHandler.Scale))
 	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/{kind}/{namespace}/{name}/restart", http.HandlerFunc(workloadsHandler.Restart))
 	protected.Handle("POST /api/v1/clusters/{clusterID}/workloads/deployments/{namespace}/{name}/rollback", http.HandlerFunc(workloadsHandler.Rollback))
+
+	topologyHandler := handlers.TopologyHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/topology", http.HandlerFunc(topologyHandler.Get))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 
