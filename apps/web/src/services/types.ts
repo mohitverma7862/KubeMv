@@ -69,3 +69,20 @@ export interface ResourceDetail {
   events?: EventRow[]
   related?: ResourceRow[]
 }
+
+export interface PodContainer {
+  name: string
+  image: string
+  ready: boolean
+  restarts: number
+}
+
+export interface PortForwardSession {
+  id: string
+  namespace: string
+  pod: string
+  localPort: number
+  remotePort: number
+  status: string
+  url: string
+}

@@ -7,9 +7,10 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/api/middleware"
 	"github.com/mohitverma7862/KubeMv/internal/auth"
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
+	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.2.0-phase1"
+const APIVersion = "0.3.0-phase2"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
@@ -20,7 +21,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "1", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "2", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -37,6 +38,19 @@ func NewRouter(deps Dependencies) http.Handler {
 	protected.Handle("GET /api/v1/clusters/{clusterID}/resources/{kind}/{namespace}/{name}", http.HandlerFunc(resourceHandler.Get))
 	protected.Handle("GET /api/v1/clusters/{clusterID}/crds", http.HandlerFunc(resourceHandler.CRDs))
 
+	podsHandler := handlers.PodsHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/pods/{namespace}/{name}/containers", http.HandlerFunc(podsHandler.Containers))
+	protected.Handle("GET /api/v1/clusters/{clusterID}/pods/{namespace}/{name}/logs", http.HandlerFunc(podsHandler.Logs))
+
+	pfManager := portforward.NewManager(deps.Connector)
+	pfHandler := handlers.PortForwardHandler{Manager: pfManager}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/portforwards", http.HandlerFunc(pfHandler.List))
+	protected.Handle("POST /api/v1/clusters/{clusterID}/portforwards", http.HandlerFunc(pfHandler.Create))
+	protected.Handle("DELETE /api/v1/clusters/{clusterID}/portforwards/{id}", http.HandlerFunc(pfHandler.Delete))
+
+	execHandler := handlers.ExecWSHandler{Authenticator: deps.Authenticator, Connector: deps.Connector}
+	mux.Handle("GET /api/v1/ws/clusters/{clusterID}/exec", execHandler)
+
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 
 	return withCORS(mux)
@@ -46,7 +60,7 @@ func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return

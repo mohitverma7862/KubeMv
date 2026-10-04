@@ -10,6 +10,7 @@ import type { ResourceRow } from '../../services/types'
 import { useResourceStore } from '../../stores/resourceStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useUIStore } from '../../stores/uiStore'
+import { PodOpsPanel } from './PodOpsPanel'
 
 export function FastModeWorkspace() {
   const token = useSessionStore((s) => s.token)
@@ -117,6 +118,9 @@ export function FastModeWorkspace() {
           ) : null}
         </section>
       </div>
+
+      {kind === 'pods' && selected ? <PodOpsPanel pod={selected} /> : null}
+
       <input ref={filterRef} className="sr-only" aria-hidden tabIndex={-1} />
     </div>
   )
