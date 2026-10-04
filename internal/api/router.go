@@ -10,19 +10,25 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.8.0-phase7"
+const APIVersion = "0.9.0-phase8"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
 	Connector     kubernetes.Connector
 	PrometheusURL string
+	AIEnabled     bool
 }
 
 func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "7", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{
+		Phase:       "8",
+		Version:     APIVersion,
+		AIEnabled:   deps.AIEnabled,
+		Description: "Phase 8 — rule-based AI triage, runbooks, guarded automation dry-runs",
+	})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -71,6 +77,10 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	gitopsHandler := handlers.GitOpsHandler{Connector: deps.Connector}
 	protected.Handle("GET /api/v1/clusters/{clusterID}/gitops/overview", http.HandlerFunc(gitopsHandler.Overview))
+
+	assistHandler := handlers.AssistHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/assist/bundle", http.HandlerFunc(assistHandler.Bundle))
+	protected.Handle("POST /api/v1/clusters/{clusterID}/assist/hooks/{hookID}/dry-run", http.HandlerFunc(assistHandler.HookDryRun))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 

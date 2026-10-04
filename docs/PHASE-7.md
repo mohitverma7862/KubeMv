@@ -18,4 +18,4 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## Next (Phase 8)
 
-AI-assisted triage, runbook suggestions, and guarded automation hooks (per product roadmap).
+See [PHASE-8.md](PHASE-8.md).

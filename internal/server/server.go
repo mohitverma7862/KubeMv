@@ -29,6 +29,7 @@ func New(opts Options) *Server {
 		Authenticator: opts.Authenticator,
 		Connector:     opts.Connector,
 		PrometheusURL: opts.Config.PrometheusURL,
+		AIEnabled:     opts.Config.AIEnabled,
 	})
 	srv := &http.Server{
 		Addr:         opts.Config.HTTPAddr,

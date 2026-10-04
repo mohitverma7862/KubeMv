@@ -17,6 +17,7 @@ type Config struct {
 	PrometheusURL   string
 	GrafanaURL      string
 	LokiURL         string
+	AIEnabled       bool
 }
 
 // Load reads configuration from environment variables with safe defaults.
@@ -31,6 +32,7 @@ func Load() Config {
 		PrometheusURL:   envOr("KUBEMV_PROMETHEUS_URL", ""),
 		GrafanaURL:      envOr("KUBEMV_GRAFANA_URL", ""),
 		LokiURL:         envOr("KUBEMV_LOKI_URL", ""),
+		AIEnabled:       envBool("KUBEMV_AI_ENABLED", true),
 	}
 }
 

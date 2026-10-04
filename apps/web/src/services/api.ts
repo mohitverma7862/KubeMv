@@ -15,6 +15,8 @@ import type {
   ScrapeTarget,
   SecuritySummary,
   GitOpsOverview,
+  AssistBundle,
+  HookDryRunResult,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -171,6 +173,31 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
     })
   },
+  assistBundle: (
+    token: string,
+    clusterID: string,
+    params: { namespace?: string; kind?: string; name?: string },
+  ) => {
+    const search = new URLSearchParams()
+    if (params.namespace) search.set('namespace', params.namespace)
+    if (params.kind) search.set('kind', params.kind)
+    if (params.name) search.set('name', params.name)
+    const qs = search.toString()
+    return request<AssistBundle>(`/api/v1/clusters/${clusterID}/assist/bundle${qs ? `?${qs}` : ''}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  },
+  assistHookDryRun: (
+    token: string,
+    clusterID: string,
+    hookId: string,
+    body: { namespace?: string; kind?: string; name?: string },
+  ) =>
+    request<HookDryRunResult>(`/api/v1/clusters/${clusterID}/assist/hooks/${hookId}/dry-run`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    }),
   gitopsOverview: (token: string, clusterID: string, namespace?: string) => {
     const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
     return request<GitOpsOverview>(`/api/v1/clusters/${clusterID}/gitops/overview${qs}`, {

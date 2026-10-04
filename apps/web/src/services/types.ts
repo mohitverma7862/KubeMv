@@ -244,6 +244,63 @@ export interface PipelineRun {
   url: string
 }
 
+export interface AssistResource {
+  namespace: string
+  kind: string
+  name: string
+}
+
+export interface Hypothesis {
+  title: string
+  likelihood: string
+  evidence: string
+}
+
+export interface TriageResult {
+  summary: string
+  confidence: number
+  hypotheses: Hypothesis[]
+  signals: string[]
+  disclaimer: string
+}
+
+export interface RunbookStep {
+  order: number
+  title: string
+  command?: string
+  caution?: string
+}
+
+export interface Runbook {
+  id: string
+  title: string
+  steps: RunbookStep[]
+}
+
+export interface AutomationHook {
+  id: string
+  title: string
+  description: string
+  risk: string
+  requiresApproval: boolean
+  dryRunSupported: boolean
+}
+
+export interface AssistBundle {
+  resource: AssistResource
+  triage: TriageResult
+  runbook: Runbook
+  hooks: AutomationHook[]
+}
+
+export interface HookDryRunResult {
+  hookId: string
+  status: string
+  message: string
+  plannedActions: string[]
+  auditId: string
+}
+
 export interface GitOpsOverview {
   namespace: string
   stats: GitOpsStats
