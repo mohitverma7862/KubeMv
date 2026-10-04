@@ -11,6 +11,7 @@ import { useResourceStore } from '../../stores/resourceStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useUIStore } from '../../stores/uiStore'
 import { PodOpsPanel } from './PodOpsPanel'
+import { WorkloadOpsPanel } from './WorkloadOpsPanel'
 
 export function FastModeWorkspace() {
   const token = useSessionStore((s) => s.token)
@@ -120,6 +121,9 @@ export function FastModeWorkspace() {
       </div>
 
       {kind === 'pods' && selected ? <PodOpsPanel pod={selected} /> : null}
+      {selected && (kind === 'deployments' || kind === 'statefulsets') ? (
+        <WorkloadOpsPanel kind={kind} workload={selected} />
+      ) : null}
 
       <input ref={filterRef} className="sr-only" aria-hidden tabIndex={-1} />
     </div>

@@ -43,6 +43,12 @@ export type ResourceKindPath =
   | 'secrets'
   | 'crds'
   | 'namespaces'
+  | 'statefulsets'
+  | 'daemonsets'
+  | 'jobs'
+  | 'cronjobs'
+  | 'hpa'
+  | 'pdb'
 
 export interface ResourceRow {
   kind: string
@@ -75,6 +81,34 @@ export interface PodContainer {
   image: string
   ready: boolean
   restarts: number
+}
+
+export interface RolloutRevision {
+  revision: number
+  replicas: number
+  ready: number
+  progress: number
+  status: string
+}
+
+export interface RolloutStatus {
+  kind: string
+  name: string
+  namespace: string
+  replicas: number
+  ready: number
+  updated: number
+  available: number
+  strategy: string
+  revisions: RolloutRevision[]
+}
+
+export interface MutationResult {
+  action: string
+  risk: string
+  status: string
+  message: string
+  auditId: string
 }
 
 export interface PortForwardSession {

@@ -2,8 +2,8 @@
 
 **Advanced Kubernetes Operations Platform** — K9s speed with a modern GUI, security, GitOps, and optional AI assistance.
 
-**Status:** Phase 2 (logs / exec / port-forward)  
-**Version:** `0.3.0-phase2`
+**Status:** Phase 3 (advanced workloads)  
+**Version:** `0.4.0-phase3`
 
 ## Product modes
 

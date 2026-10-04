@@ -13,12 +13,19 @@ const (
 	ResourceSecrets      ResourceKindPath = "secrets"
 	ResourceCRDs         ResourceKindPath = "crds"
 	ResourceNamespaces   ResourceKindPath = "namespaces"
+	ResourceStatefulSets ResourceKindPath = "statefulsets"
+	ResourceDaemonSets   ResourceKindPath = "daemonsets"
+	ResourceJobs         ResourceKindPath = "jobs"
+	ResourceCronJobs     ResourceKindPath = "cronjobs"
+	ResourceHPA          ResourceKindPath = "hpa"
+	ResourcePDB          ResourceKindPath = "pdb"
 )
 
 func ValidResourceKind(kind string) (ResourceKindPath, bool) {
 	switch ResourceKindPath(kind) {
 	case ResourcePods, ResourceDeployments, ResourceServices, ResourceNodes,
-		ResourceEvents, ResourceConfigMaps, ResourceSecrets, ResourceCRDs, ResourceNamespaces:
+		ResourceEvents, ResourceConfigMaps, ResourceSecrets, ResourceCRDs, ResourceNamespaces,
+		ResourceStatefulSets, ResourceDaemonSets, ResourceJobs, ResourceCronJobs, ResourceHPA, ResourcePDB:
 		return ResourceKindPath(kind), true
 	default:
 		return "", false

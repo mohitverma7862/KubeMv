@@ -42,6 +42,9 @@ func (c *client) ListCRDs(_ context.Context) ([]kubernetes.CRDInfo, error) {
 }
 
 func stubRows(kind kubernetes.ResourceKindPath, ns string) []kubernetes.ResourceRow {
+	if rows := stubWorkloadRows(kind, ns); rows != nil {
+		return rows
+	}
 	ns = defaultNS(ns)
 	switch kind {
 	case kubernetes.ResourcePods:

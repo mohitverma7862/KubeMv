@@ -116,7 +116,7 @@ export function AppShell({ clusters }: { clusters: ClusterRef[] }) {
       </div>
 
       <footer className="flex items-center justify-between border-t border-[var(--color-kp-border)] bg-[var(--color-kp-surface)] px-4 py-2 text-xs text-[var(--color-kp-muted)]">
-        <span>Phase 2 — logs, exec, port-forward (server-side tunnels)</span>
+        <span>Phase 3 — rollouts, scale, HPA/PDB, advanced workloads</span>
         <span>Fast / Visual context: {clusterID} / {namespace}</span>
       </footer>
     </div>
