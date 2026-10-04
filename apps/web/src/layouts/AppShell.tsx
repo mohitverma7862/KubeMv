@@ -18,6 +18,7 @@ const navItems = [
   { to: '/', label: 'Overview' },
   { to: '/fast', label: 'Fast Mode' },
   { to: '/visual', label: 'Visual Mode' },
+  { to: '/topology', label: 'Topology / XRay' },
   { to: '/workloads', label: 'Workloads' },
   { to: '/network', label: 'Network' },
   { to: '/security', label: 'Security' },
@@ -116,7 +117,7 @@ export function AppShell({ clusters }: { clusters: ClusterRef[] }) {
       </div>
 
       <footer className="flex items-center justify-between border-t border-[var(--color-kp-border)] bg-[var(--color-kp-surface)] px-4 py-2 text-xs text-[var(--color-kp-muted)]">
-        <span>Phase 3 — rollouts, scale, HPA/PDB, advanced workloads</span>
+        <span>Phase 4 — resource graph, workload & network topology, health overlay</span>
         <span>Fast / Visual context: {clusterID} / {namespace}</span>
       </footer>
     </div>

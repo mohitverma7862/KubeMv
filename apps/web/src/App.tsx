@@ -6,6 +6,7 @@ import { FastModePage } from './pages/FastModePage'
 import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { TopologyPage } from './pages/TopologyPage'
 import { VisualModePage } from './pages/VisualModePage'
 import { api } from './services/api'
 import { useSessionStore } from './stores/sessionStore'
@@ -31,7 +32,8 @@ function ProtectedApp() {
         <Route path="fast" element={<FastModePage />} />
         <Route path="visual" element={<VisualModePage />} />
         <Route path="workloads" element={<FastModePage />} />
-        <Route path="network" element={<PlaceholderPage title="Network" />} />
+        <Route path="topology" element={<TopologyPage />} />
+        <Route path="network" element={<TopologyPage />} />
         <Route path="security" element={<PlaceholderPage title="Security" />} />
       </Route>
     </Routes>

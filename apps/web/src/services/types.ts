@@ -103,6 +103,29 @@ export interface RolloutStatus {
   revisions: RolloutRevision[]
 }
 
+export interface GraphNode {
+  id: string
+  kind: string
+  name: string
+  namespace: string
+  status: string
+  healthScore: number
+}
+
+export interface GraphEdge {
+  source: string
+  target: string
+  relation: string
+}
+
+export interface TopologyGraph {
+  mode: string
+  namespace: string
+  root: string
+  nodes: GraphNode[]
+  edges: GraphEdge[]
+}
+
 export interface MutationResult {
   action: string
   risk: string
