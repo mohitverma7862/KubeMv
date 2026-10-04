@@ -10,6 +10,9 @@ import type {
   ResourceRow,
   RolloutStatus,
   TopologyGraph,
+  ObservabilityDashboard,
+  MetricsQueryResult,
+  ScrapeTarget,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -144,5 +147,40 @@ export const api = {
     return request<TopologyGraph>(`/api/v1/clusters/${clusterID}/topology${qs ? `?${qs}` : ''}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
+  },
+  observabilityDashboard: (
+    token: string,
+    clusterID: string,
+    params: { namespace?: string; kind?: string; name?: string },
+  ) => {
+    const search = new URLSearchParams()
+    if (params.namespace) search.set('namespace', params.namespace)
+    if (params.kind) search.set('kind', params.kind)
+    if (params.name) search.set('name', params.name)
+    const qs = search.toString()
+    return request<ObservabilityDashboard>(
+      `/api/v1/clusters/${clusterID}/observability/dashboard${qs ? `?${qs}` : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
+  },
+  observabilityTargets: (token: string, clusterID: string, namespace?: string) => {
+    const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
+    return request<ScrapeTarget[]>(`/api/v1/clusters/${clusterID}/observability/targets${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  },
+  observabilityMetrics: (
+    token: string,
+    clusterID: string,
+    params: { query: string; start?: number; end?: number; step?: number },
+  ) => {
+    const search = new URLSearchParams({ query: params.query })
+    if (params.start) search.set('start', String(params.start))
+    if (params.end) search.set('end', String(params.end))
+    if (params.step) search.set('step', String(params.step))
+    return request<MetricsQueryResult>(
+      `/api/v1/clusters/${clusterID}/observability/metrics?${search.toString()}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
   },
 }

@@ -19,6 +19,7 @@ const navItems = [
   { to: '/fast', label: 'Fast Mode' },
   { to: '/visual', label: 'Visual Mode' },
   { to: '/topology', label: 'Topology / XRay' },
+  { to: '/observability', label: 'Observability' },
   { to: '/workloads', label: 'Workloads' },
   { to: '/network', label: 'Network' },
   { to: '/security', label: 'Security' },

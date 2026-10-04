@@ -10,18 +10,19 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/portforward"
 )
 
-const APIVersion = "0.5.0-phase4"
+const APIVersion = "0.6.0-phase5"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
 	Connector     kubernetes.Connector
+	PrometheusURL string
 }
 
 func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "4", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "5", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -59,6 +60,11 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	topologyHandler := handlers.TopologyHandler{Connector: deps.Connector}
 	protected.Handle("GET /api/v1/clusters/{clusterID}/topology", http.HandlerFunc(topologyHandler.Get))
+
+	obsHandler := &handlers.ObservabilityHandler{Connector: deps.Connector, PrometheusURL: deps.PrometheusURL}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/observability/metrics", http.HandlerFunc(obsHandler.Metrics))
+	protected.Handle("GET /api/v1/clusters/{clusterID}/observability/targets", http.HandlerFunc(obsHandler.Targets))
+	protected.Handle("GET /api/v1/clusters/{clusterID}/observability/dashboard", http.HandlerFunc(obsHandler.Dashboard))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 

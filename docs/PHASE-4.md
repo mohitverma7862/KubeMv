@@ -19,4 +19,4 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## Next (Phase 5)
 
-Metrics, Prometheus integration, unified observability views.
+See [PHASE-5.md](PHASE-5.md) — delivered on `cursor/phase-5-observability-8762`.
