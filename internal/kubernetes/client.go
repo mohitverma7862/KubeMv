@@ -22,6 +22,7 @@ type ClusterClient interface {
 	ListScrapeTargets(ctx context.Context, namespace string) ([]ScrapeTarget, error)
 	GetObservabilityDashboard(ctx context.Context, namespace, kind, name string) (ObservabilityDashboard, error)
 	GetSecuritySummary(ctx context.Context, namespace string) (SecuritySummary, error)
+	GetGitOpsOverview(ctx context.Context, namespace string) (GitOpsOverview, error)
 }
 
 // Connector establishes cluster clients from server-managed credentials.

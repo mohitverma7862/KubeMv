@@ -18,4 +18,4 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## Next (Phase 7)
 
-GitOps views, manifest drift, and deployment pipeline hooks (per product roadmap).
+See [PHASE-7.md](PHASE-7.md).

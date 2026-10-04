@@ -205,6 +205,53 @@ export interface PolicyFinding {
   remediation: string
 }
 
+export interface GitOpsStats {
+  applications: number
+  synced: number
+  outOfSync: number
+  driftItems: number
+}
+
+export interface GitOpsApplication {
+  name: string
+  namespace: string
+  provider: string
+  repository: string
+  revision: string
+  path: string
+  syncStatus: string
+  health: string
+  lastSyncedAt: string
+}
+
+export interface GitOpsDrift {
+  id: string
+  severity: string
+  resource: string
+  field: string
+  gitValue: string
+  liveValue: string
+  suggestion: string
+}
+
+export interface PipelineRun {
+  id: string
+  name: string
+  trigger: string
+  status: string
+  commit: string
+  startedAt: string
+  url: string
+}
+
+export interface GitOpsOverview {
+  namespace: string
+  stats: GitOpsStats
+  applications: GitOpsApplication[]
+  drift: GitOpsDrift[]
+  pipelines: PipelineRun[]
+}
+
 export interface SecuritySummary {
   namespace: string
   score: number

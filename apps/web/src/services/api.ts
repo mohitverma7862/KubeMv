@@ -14,6 +14,7 @@ import type {
   MetricsQueryResult,
   ScrapeTarget,
   SecuritySummary,
+  GitOpsOverview,
 } from './types'
 
 interface ApiEnvelope<T> {
@@ -167,6 +168,12 @@ export const api = {
   observabilityTargets: (token: string, clusterID: string, namespace?: string) => {
     const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
     return request<ScrapeTarget[]>(`/api/v1/clusters/${clusterID}/observability/targets${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  },
+  gitopsOverview: (token: string, clusterID: string, namespace?: string) => {
+    const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
+    return request<GitOpsOverview>(`/api/v1/clusters/${clusterID}/gitops/overview${qs}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
   },
