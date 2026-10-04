@@ -1,4 +1,11 @@
-import type { ClusterOverview, ClusterRef, Principal } from './types'
+import type {
+  ClusterOverview,
+  ClusterRef,
+  Principal,
+  ResourceDetail,
+  ResourceKindPath,
+  ResourceRow,
+} from './types'
 
 interface ApiEnvelope<T> {
   data?: T
@@ -39,4 +46,31 @@ export const api = {
     request<ClusterOverview>(`/api/v1/clusters/${clusterID}/overview`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+  resources: (
+    token: string,
+    clusterID: string,
+    kind: ResourceKindPath,
+    params: { namespace?: string; q?: string; labels?: string },
+  ) => {
+    const search = new URLSearchParams()
+    if (params.namespace) search.set('namespace', params.namespace)
+    if (params.q) search.set('q', params.q)
+    if (params.labels) search.set('labels', params.labels)
+    const qs = search.toString()
+    return request<ResourceRow[]>(
+      `/api/v1/clusters/${clusterID}/resources/${kind}${qs ? `?${qs}` : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
+  },
+  resourceDetail: (
+    token: string,
+    clusterID: string,
+    kind: ResourceKindPath,
+    namespace: string,
+    name: string,
+  ) =>
+    request<ResourceDetail>(
+      `/api/v1/clusters/${clusterID}/resources/${kind}/${namespace || '_'}/${name}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    ),
 }

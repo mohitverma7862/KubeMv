@@ -9,7 +9,7 @@ import (
 
 	"github.com/mohitverma7862/KubeMv/internal/auth/dev"
 	"github.com/mohitverma7862/KubeMv/internal/config"
-	"github.com/mohitverma7862/KubeMv/internal/kubernetes/stub"
+	"github.com/mohitverma7862/KubeMv/internal/kubernetes/connector"
 	"github.com/mohitverma7862/KubeMv/internal/server"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	srv := server.New(server.Options{
 		Config:        cfg,
 		Authenticator: dev.NewAuthenticator(),
-		Connector:     stub.NewConnector(),
+		Connector:     connector.NewDefault(),
 	})
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

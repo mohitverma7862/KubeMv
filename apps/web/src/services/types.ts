@@ -32,3 +32,40 @@ export interface ClusterOverview {
   health: ClusterHealth
   namespaces: Namespace[]
 }
+
+export type ResourceKindPath =
+  | 'pods'
+  | 'deployments'
+  | 'services'
+  | 'nodes'
+  | 'events'
+  | 'configmaps'
+  | 'secrets'
+  | 'crds'
+  | 'namespaces'
+
+export interface ResourceRow {
+  kind: string
+  namespace: string
+  name: string
+  status: string
+  age: string
+  labels?: Record<string, string>
+  extra?: Record<string, string>
+}
+
+export interface EventRow {
+  type: string
+  reason: string
+  message: string
+  object: string
+  age: string
+  namespace: string
+}
+
+export interface ResourceDetail {
+  row: ResourceRow
+  yaml: string
+  events?: EventRow[]
+  related?: ResourceRow[]
+}
