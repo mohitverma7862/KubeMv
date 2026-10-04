@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: KubeMv API
+  version: 0.1.0
+  description: |
+    Phase 0 contract for the KubeMv operator API.
+    This process authenticates an operator, stores cluster registry metadata,
+    and lists in-process plugin manifests. It does not call the Kubernetes API
+    and it never returns kubeconfig contents or secret values.
+servers:
+  - url: http://127.0.0.1:8787
+paths:
+  /api/v1/health:
+    get:
+      summary: Process health and enabled capabilities
+      operationId: getHealth
+      responses:
+        "200":
+          description: Process is serving
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /api/v1/auth/login:
+    post:
+      summary: Create a session
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Session created. The session id is an HttpOnly cookie.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+  /api/v1/auth/logout:
+    post:
+      summary: Revoke the current session
+      operationId: logout
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      responses:
+        "204":
+          description: Session revoked
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+  /api/v1/auth/session:
+    get:
+      summary: Read the current session
+      operationId: getSession
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Active session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Error"
+  /api/v1/clusters:
+    get:
+      summary: List registered cluster metadata
+      operationId: listClusters
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Registry records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClusterList"
+        "401":
+          $ref: "#/components/responses/Error"
+    post:
+      summary: Register cluster metadata
+      description: |
+        kubeconfigRef is stored only in process memory and is omitted from the
+        response. Inline kubeconfig documents and credential material are rejected.
+      operationId: registerCluster
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterRegistration"
+      responses:
+        "201":
+          description: Created record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cluster"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /api/v1/clusters/{id}:
+    get:
+      summary: Read one cluster record
+      operationId: getCluster
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClusterId"
+      responses:
+        "200":
+          description: Cluster record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cluster"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Remove cluster metadata
+      description: Does not delete Kubernetes resources.
+      operationId: removeCluster
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: "#/components/parameters/ClusterId"
+      responses:
+        "204":
+          description: Removed
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+  /api/v1/plugins:
+    get:
+      summary: List in-process plugin manifests
+      operationId: listPlugins
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Manifests that passed the permission boundary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginList"
+        "401":
+          $ref: "#/components/responses/Error"
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: kubemv_session
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-KubeMv-CSRF
+  parameters:
+    ClusterId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+  schemas:
+    Health:
+      type: object
+      required: [status, service, version, phase, capabilities]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+        version:
+          type: string
+        phase:
+          type: integer
+        capabilities:
+          type: array
+          items:
+            type: string
+    LoginRequest:
+      type: object
+      required: [username, password]
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    Principal:
+      type: object
+      required: [username, displayName, roles]
+      properties:
+        username:
+          type: string
+        displayName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+    Session:
+      type: object
+      required: [principal, expiresAt, csrfToken]
+      properties:
+        principal:
+          $ref: "#/components/schemas/Principal"
+        expiresAt:
+          type: string
+          format: date-time
+        csrfToken:
+          type: string
+    ClusterRegistration:
+      type: object
+      required: [name, provider, context]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+          enum: [generic, eks, gke, aks]
+        context:
+          type: string
+        kubeconfigRef:
+          type: string
+          description: Opaque server-side reference. Never returned by the API.
+    Cluster:
+      type: object
+      required: [id, name, provider, context, connectionState, connectionDetail, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+        context:
+          type: string
+        connectionState:
+          type: string
+          enum: [not_connected]
+        connectionDetail:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ClusterList:
+      type: object
+      required: [clusters]
+      properties:
+        clusters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Cluster"
+    Plugin:
+      type: object
+      required: [id, name, version, category, description, permissions]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    PluginList:
+      type: object
+      required: [plugins]
+      properties:
+        plugins:
+          type: array
+          items:
+            $ref: "#/components/schemas/Plugin"
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string

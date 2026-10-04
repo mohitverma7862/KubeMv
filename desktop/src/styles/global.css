@@ -1,0 +1,678 @@
+@import "./tokens.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.km-skip {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 6px 10px;
+  z-index: 20;
+}
+
+.km-skip:focus {
+  top: 8px;
+}
+
+.km-shell {
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--nav) minmax(0, 1fr);
+  grid-template-rows: var(--topbar) minmax(0, 1fr) var(--status);
+  grid-template-areas:
+    "top top"
+    "nav main"
+    "status status";
+}
+
+.km-topbar,
+.km-status,
+.km-nav {
+  background: var(--bg-sunken);
+}
+
+.km-topbar {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid var(--line);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.km-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.km-mark {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.km-word {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-size: 16px;
+}
+
+.km-word span {
+  color: var(--accent);
+}
+
+.km-phase {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.km-palette-trigger {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: min(420px, 36vw);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.km-palette-trigger:hover {
+  border-color: var(--line-strong);
+  background: var(--bg-hover);
+}
+
+.km-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.km-nav {
+  grid-area: nav;
+  border-right: 1px solid var(--line);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.km-nav a:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.km-nav a[aria-current="page"] {
+  background: var(--accent-dim);
+  color: var(--text);
+}
+
+.km-nav kbd,
+.km-kbd {
+  font-family: var(--mono);
+  font-size: 11px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 5px;
+  color: var(--text-faint);
+  background: var(--bg);
+}
+
+.km-main {
+  grid-area: main;
+  overflow: auto;
+  padding: 22px 24px 32px;
+}
+
+.km-status {
+  grid-area: status;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.km-status .km-btn-ghost {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.km-status button {
+  margin-left: auto;
+}
+
+.km-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.km-kicker {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+h2 {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.km-lead {
+  margin: 6px 0 0;
+  max-width: 68ch;
+  color: var(--text-muted);
+}
+
+.km-stat-grid,
+.km-split {
+  display: grid;
+  gap: 12px;
+}
+
+.km-stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.km-split {
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+}
+
+.km-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  min-width: 0;
+}
+
+.km-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.km-stat strong {
+  display: block;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.km-stat span,
+.km-muted {
+  color: var(--text-muted);
+}
+
+.km-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.km-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.km-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.km-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  justify-self: center;
+}
+
+.km-dot[data-state="ok"] {
+  background: var(--ok);
+}
+
+.km-dot[data-state="idle"] {
+  background: var(--accent);
+}
+
+.km-dot[data-state="down"] {
+  background: var(--danger);
+}
+
+.km-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+th {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-sunken);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.km-btn,
+.km-btn-ghost,
+.km-btn-danger {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  padding: 7px 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.km-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.km-btn-ghost,
+.km-btn-danger {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line-strong);
+  font-weight: 500;
+}
+
+.km-btn-danger {
+  color: var(--danger);
+}
+
+.km-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.km-field span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+input,
+select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.km-help {
+  margin: -4px 0 12px;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.km-alert {
+  border: 1px solid var(--danger);
+  background: var(--danger-dim);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.km-alert[data-tone="info"] {
+  border-color: var(--line-strong);
+  background: var(--bg-sunken);
+}
+
+.km-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.km-badge[data-tone="idle"] {
+  color: var(--accent);
+  border-color: transparent;
+  background: var(--accent-dim);
+}
+
+.km-badge[data-tone="ok"] {
+  color: var(--ok);
+  border-color: transparent;
+  background: var(--ok-dim);
+}
+
+.km-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.km-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: 12px;
+  align-items: start;
+}
+
+.km-login {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(280px, 460px) minmax(0, 1fr);
+}
+
+.km-login-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 40px;
+  background: var(--bg-sunken);
+  border-right: 1px solid var(--line);
+}
+
+.km-login-aside {
+  padding: 48px;
+  background:
+    linear-gradient(180deg, transparent, rgba(215, 161, 95, 0.05)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      var(--line) 28px
+    );
+  display: flex;
+  align-items: flex-end;
+}
+
+.km-login-aside blockquote {
+  margin: 0;
+  max-width: 36ch;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+
+.km-login-aside p {
+  color: var(--text-muted);
+}
+
+.km-modal-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 8, 12, 0.62);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+  z-index: 30;
+}
+
+.km-modal {
+  width: min(560px, 100%);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.km-modal header,
+.km-modal footer,
+.km-dialog {
+  padding: 12px 14px;
+}
+
+.km-modal header {
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.km-command-input {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 14px;
+}
+
+.km-command-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.km-command-list button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.km-command-list button[data-active="true"],
+.km-command-list button:hover {
+  background: var(--bg-hover);
+}
+
+.km-shortcut-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  margin: 0;
+}
+
+.km-shortcut-list dt {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.km-shortcut-list dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.km-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.km-screen {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+}
+
+.km-theme-choice {
+  display: flex;
+  gap: 8px;
+}
+
+.km-theme-choice button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+@media (max-width: 960px) {
+  .km-stat-grid,
+  .km-split,
+  .km-form-grid,
+  .km-login {
+    grid-template-columns: 1fr;
+  }
+
+  .km-login-aside {
+    display: none;
+  }
+
+  .km-palette-trigger {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .km-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--topbar) auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top"
+      "nav"
+      "main"
+      "status";
+  }
+
+  .km-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 8px;
+  }
+
+  .km-status {
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 6px 12px;
+    row-gap: 4px;
+  }
+
+  .km-nav a {
+    flex: none;
+  }
+
+  .km-brand {
+    min-width: 0;
+  }
+
+  .km-phase,
+  .km-user {
+    display: none;
+  }
+
+  .km-main {
+    padding: 16px;
+  }
+}

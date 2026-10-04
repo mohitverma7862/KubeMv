@@ -31,3 +31,26 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Rust
+target/
+
+# Python
+__pycache__/
+*.pyc
+
+# KubeMv
+backend/bin/
+playwright-report/
+test-results/
+blob-report/
+
+# Local environment
+.env
+.env.*
+!.env.example
