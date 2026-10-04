@@ -12,3 +12,8 @@ if [[ -f go.mod ]]; then
   go mod download
   go build -o /dev/null ./...
 fi
+
+if [[ -f apps/web/package.json ]]; then
+  (cd apps/web && npm ci)
+  (cd apps/web && npm run build)
+fi
