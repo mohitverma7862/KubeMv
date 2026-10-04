@@ -8,6 +8,9 @@ type ClusterClient interface {
 	Cluster() ClusterRef
 	ListNamespaces(ctx context.Context, opts ListOptions) ([]Namespace, error)
 	Health(ctx context.Context) (ClusterHealth, error)
+	ListResources(ctx context.Context, kind ResourceKindPath, opts ListOptions) ([]ResourceRow, error)
+	GetResource(ctx context.Context, kind ResourceKindPath, namespace, name string) (ResourceDetail, error)
+	ListCRDs(ctx context.Context) ([]CRDInfo, error)
 }
 
 // Connector establishes cluster clients from server-managed credentials.

@@ -9,7 +9,7 @@ import (
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
 )
 
-const APIVersion = "0.1.0-phase0"
+const APIVersion = "0.2.0-phase1"
 
 type Dependencies struct {
 	Authenticator auth.Authenticator
@@ -20,7 +20,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /healthz", handlers.HealthHandler{Version: APIVersion})
-	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "0", Version: APIVersion})
+	mux.Handle("GET /api/v1/meta", handlers.MetaHandler{Phase: "1", Version: APIVersion})
 
 	authHandler := handlers.AuthHandler{Authenticator: deps.Authenticator}
 	mux.Handle("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
@@ -31,6 +31,11 @@ func NewRouter(deps Dependencies) http.Handler {
 	clusterHandler := handlers.ClustersHandler{Connector: deps.Connector}
 	protected.Handle("GET /api/v1/clusters", http.HandlerFunc(clusterHandler.List))
 	protected.Handle("GET /api/v1/clusters/{clusterID}/overview", http.HandlerFunc(clusterHandler.Overview))
+
+	resourceHandler := handlers.ResourcesHandler{Connector: deps.Connector}
+	protected.Handle("GET /api/v1/clusters/{clusterID}/resources/{kind}", http.HandlerFunc(resourceHandler.List))
+	protected.Handle("GET /api/v1/clusters/{clusterID}/resources/{kind}/{namespace}/{name}", http.HandlerFunc(resourceHandler.Get))
+	protected.Handle("GET /api/v1/clusters/{clusterID}/crds", http.HandlerFunc(resourceHandler.CRDs))
 
 	mux.Handle("/api/v1/", middleware.RequireAuth(deps.Authenticator)(protected))
 

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './layouts/AppShell'
 import { FastModePage } from './pages/FastModePage'
+// workloads route reuses Fast Mode explorer in Phase 1
 import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
@@ -29,7 +30,7 @@ function ProtectedApp() {
         <Route index element={<OverviewPage />} />
         <Route path="fast" element={<FastModePage />} />
         <Route path="visual" element={<VisualModePage />} />
-        <Route path="workloads" element={<PlaceholderPage title="Workloads" />} />
+        <Route path="workloads" element={<FastModePage />} />
         <Route path="network" element={<PlaceholderPage title="Network" />} />
         <Route path="security" element={<PlaceholderPage title="Security" />} />
       </Route>

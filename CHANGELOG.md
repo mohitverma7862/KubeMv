@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0-phase1] - 2026-10-04
+
+### Added
+
+- `client-go` Kubernetes connector with kubeconfig context discovery
+- Resource list/detail REST APIs for core K9s resource types
+- Fast Mode explorer with split pane, command palette, and filters
+- Namespace selector and command alias parsing (`:pods`, `:deploy`, etc.)
+
 ## [0.1.0-phase0] - 2026-10-04
 
 ### Added
