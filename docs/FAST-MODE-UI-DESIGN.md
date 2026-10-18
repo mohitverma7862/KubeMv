@@ -1,5 +1,9 @@
 # KubeMv Fast Mode — Advanced TUI Design Specification
 
+> Visual references: [`assets/kubemv-fast-mode-tui.svg`](assets/kubemv-fast-mode-tui.svg) · [`assets/kubemv-fast-mode-interaction.svg`](assets/kubemv-fast-mode-interaction.svg)
+>
+> Implementation contract: [`FAST-MODE-SPEC.md`](FAST-MODE-SPEC.md) · Cursor prompt: [`FAST-MODE-CURSOR-PROMPT.md`](FAST-MODE-CURSOR-PROMPT.md)
+
 ## Goal
 
 Fast Mode is the default KubeMv operator experience. It must feel like an advanced Kubernetes terminal rather than a SaaS dashboard: K9s keyboard-first interaction + modern terminal IDE density + resource intelligence + contextual AI.
@@ -85,18 +89,7 @@ Status indicators: Running, Pending, Warning, CrashLoopBackOff, Terminating.
 
 ## 5. Resource intelligence inspector
 
-Right panel 280–340px. For the selected resource show:
-
-- health/status
-- namespace, node, IP, readiness, restarts, age, QoS
-- CPU/memory
-- containers and images
-- ports/mounts/resource limits
-- labels as compact pills
-- owner chain
-- contextual keyboard actions
-
-Never display secret values.
+Right panel 280–340px. For the selected resource show health/status, namespace, node, IP, readiness, restarts, age, QoS, CPU/memory, containers/images, ports/mounts/resource limits, labels, owner chain and contextual keyboard actions. Never display secret values.
 
 ## 6. Resource relationship tree
 
@@ -139,28 +132,11 @@ Centered compact terminal overlay. Search commands/actions and display their sho
 
 ## 10. AI overlay
 
-AI must never be a permanent panel in Fast Mode. `a` or Ctrl-A opens contextual actions:
-
-- Explain this resource
-- Analyze logs
-- Analyze events
-- Find root cause
-- Recommend remediation
-- Generate commands
-
-Output: Root Cause → Evidence → Recommended Fix → Commands. Never auto-execute. Secrets/tokens must be redacted.
+AI must never be a permanent panel in Fast Mode. `a` or Ctrl-A opens contextual actions: explain resource, analyze logs/events, find root cause, recommend remediation, generate commands. Output: Root Cause → Evidence → Recommended Fix → Commands. Never auto-execute. Secrets/tokens must be redacted.
 
 ## 11. Production/safety UX
 
 Destructive actions use explicit confirmation. Strong confirmation for Namespace, ClusterRole, CRD, StatefulSet, PVC, Secret and all production mutations. Read-only mode must be enforced server-side.
-
-Production warning example:
-
-```text
-⚠ PRODUCTION ACTION
-Delete pod/api-123?
-[Y] Continue   [N] Cancel
-```
 
 ## 12. Responsive behavior
 
@@ -171,8 +147,6 @@ At reduced width, shrink inspector, remove optional columns, collapse lower pane
 Mouse is optional. Every important workflow must work by keyboard. j/k and arrows move; g/G first/last; Enter opens; Esc returns; Ctrl-R refreshes; `:` commands; `/` filters; `?` help; Ctrl-P palette.
 
 ## 14. Component direction
-
-Prefer:
 
 ```text
 apps/web/src/fast/
