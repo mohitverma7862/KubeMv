@@ -71,7 +71,11 @@ func run(model *Model) error {
 		tabs.SetText(model.TabLine())
 		workspace.SetText(model.WorkspaceText())
 		tree.SetText(model.TreeText())
-		quick.SetText(QuickHelp())
+		if model.Help {
+			quick.SetText(ContextualHelp(model.Commanding))
+		} else {
+			quick.SetText(QuickHelp())
+		}
 		table.SetTitle(" " + model.FilterLine() + " ")
 		table.SetBorder(true)
 		table.Clear()
@@ -124,6 +128,10 @@ func run(model *Model) error {
 			quit = model.OnKey("down")
 		case tcell.KeyUp:
 			quit = model.OnKey("up")
+		case tcell.KeyTab:
+			model.OnKey("tab")
+			paint()
+			return nil
 		case tcell.KeyRune:
 			quit = model.OnRune(event.Rune())
 		}
