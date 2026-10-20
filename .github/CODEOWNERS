@@ -1,0 +1,7 @@
+# Security-sensitive repository ownership
+# Keep review ownership explicit for all changes.
+* @mohitverma7862
+
+# Security and CI configuration require owner review.
+/.github/ @mohitverma7862
+/SECURITY.md @mohitverma7862
