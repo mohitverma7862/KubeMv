@@ -39,10 +39,21 @@ export function FastShell(props: FastShellProps) {
               <ResourceTable
                 columns={props.columns}
                 rows={props.rows}
+                totalCount={props.totalCount}
                 selectedKey={props.selectedKey}
                 onSelectRow={props.onSelectRow}
                 filter={props.filter}
                 liveLabel={props.watchLabel ?? liveLabel[props.header.connection]}
+                watchAge={props.watchAge}
+                sort={props.sort}
+                onSort={props.onSort}
+                hiddenColumnIds={props.hiddenColumnIds}
+                onToggleColumn={props.onToggleColumn}
+                columnWidths={props.columnWidths}
+                onColumnWidth={props.onColumnWidth}
+                scrollTop={props.scrollTop}
+                scrollToken={props.scrollToken}
+                onScroll={props.onTableScroll}
               />
             </>
           }

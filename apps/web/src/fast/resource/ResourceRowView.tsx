@@ -1,22 +1,37 @@
+import { memo } from 'react'
 import type { ResourceRow } from '../../services/types'
 import type { TableColumn } from '../types'
+import { ROW_HEIGHT, defaultColumnWidth } from './tableModel'
 
-export function ResourceRowView({
+export const ResourceRowView = memo(function ResourceRowView({
   row,
   columns,
   selected,
+  top,
+  widths,
   onSelect,
 }: {
   row: ResourceRow
   columns: TableColumn[]
   selected: boolean
+  top: number
+  widths: Record<string, number>
   onSelect?: (row: ResourceRow) => void
 }) {
   return (
-    <tr aria-selected={selected} onClick={() => onSelect?.(row)}>
+    <div
+      role="row"
+      aria-selected={selected}
+      data-testid="fast-row"
+      className="km-fast-row"
+      style={{ top, height: ROW_HEIGHT }}
+      onClick={() => onSelect?.(row)}
+    >
       {columns.map((column) => (
-        <td key={column.id}>{column.value(row)}</td>
+        <span key={column.id} role="cell" style={{ width: widths[column.id] ?? defaultColumnWidth(column.id) }}>
+          {column.value(row)}
+        </span>
       ))}
-    </tr>
+    </div>
   )
-}
+})
