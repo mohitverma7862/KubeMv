@@ -13,3 +13,13 @@ export const referenceNav: ResourceNavItem[] = [
   { id: 'configmaps', label: 'ConfigMaps', shortcut: 'M', kind: 'configmaps', available: true },
   { id: 'secrets', label: 'Secrets', shortcut: 'R', kind: 'secrets', available: true },
 ]
+
+/** Kinds reachable from More or `:`. They stay off the primary row. */
+export const moreNav: ResourceNavItem[] = [
+  { id: 'namespaces', label: 'Namespaces', shortcut: ':', kind: 'namespaces', available: true },
+  { id: 'statefulsets', label: 'StatefulSets', shortcut: ':', kind: 'statefulsets', available: true },
+  { id: 'daemonsets', label: 'DaemonSets', shortcut: ':', kind: 'daemonsets', available: true },
+  { id: 'hpa', label: 'HPA', shortcut: ':', kind: 'hpa', available: true },
+  { id: 'pdb', label: 'PDB', shortcut: ':', kind: 'pdb', available: true },
+  { id: 'crds', label: 'CRDs', shortcut: ':', kind: 'crds', available: true },
+]

@@ -23,21 +23,26 @@ export function FastShell(props: FastShellProps) {
   const events = props.detail?.events?.map((event) => `${event.type} ${event.reason} ${event.message}`).join('\n')
   return (
     <div className="km-fast" data-testid="fast-shell">
-      <FastHeader model={props.header} />
-      <ResourceNav items={props.nav} activeKind={props.activeKind} onSelectKind={props.onSelectKind} />
+      <FastHeader model={props.header} onVisual={props.onVisual} />
+      <ResourceNav
+        items={props.nav}
+        moreItems={props.moreNav}
+        activeKind={props.activeKind}
+        onSelectKind={props.onSelectKind}
+      />
       <div className="km-fast-workspace">
         <SplitLayout
           testId="fast-upper"
           main={
             <>
-              <FilterBar value={props.filter} onChange={props.onFilterChange} />
+              <FilterBar value={props.filter} onChange={props.onFilterChange} inputRef={props.filterInputRef} />
               <ResourceTable
                 columns={props.columns}
                 rows={props.rows}
                 selectedKey={props.selectedKey}
                 onSelectRow={props.onSelectRow}
                 filter={props.filter}
-                liveLabel={liveLabel[props.header.connection]}
+                liveLabel={props.watchLabel ?? liveLabel[props.header.connection]}
               />
             </>
           }
@@ -65,11 +70,22 @@ export function FastShell(props: FastShellProps) {
           }
         />
       </div>
-      <StatusBar readOnly={props.header.readOnly} portForwardCount={props.portForwardCount ?? 0} />
+      <StatusBar
+        readOnly={props.header.readOnly}
+        portForwardCount={props.portForwardCount ?? 0}
+        contextName={props.header.contextName}
+        namespace={props.header.namespace}
+        commandActive={props.commandActive}
+        command={props.command}
+        commandError={props.commandError}
+        commandRef={props.commandInputRef}
+        onCommandChange={props.onCommandChange}
+        onCommandSubmit={props.onCommandSubmit}
+      />
       <HelpOverlay open={Boolean(props.helpOpen)} onClose={() => props.onHelpOpenChange?.(false)} />
       <CommandPalette
         open={Boolean(props.paletteOpen)}
-        items={props.nav}
+        items={[...props.nav, ...(props.moreNav ?? [])]}
         onClose={() => props.onPaletteOpenChange?.(false)}
         onSelectKind={props.onSelectKind}
       />

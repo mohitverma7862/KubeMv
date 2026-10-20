@@ -19,7 +19,7 @@ export function LoginPage() {
     try {
       const result = await api.login(username, password)
       setSession(result.token, result.principal)
-      navigate('/')
+      navigate('/fast')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'login failed')
     } finally {

@@ -13,7 +13,7 @@ export function CommandPalette({
 }) {
   if (!open) return null
   return (
-    <div className="km-fast-overlay" role="dialog" aria-label="Command palette" data-testid="fast-palette">
+    <div className="km-fast-overlay" role="dialog" aria-label="Command palette" data-testid="fast-palette" data-fast-overlay="">
       <div>Command palette</div>
       <ul>
         {items

@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { FastModeWorkspace } from './features/fast/FastModeWorkspace'
 import { AppShell } from './layouts/AppShell'
 import { FastModePage } from './pages/FastModePage'
-// workloads route reuses Fast Mode explorer in Phase 1
 import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { SecurityPage } from './pages/SecurityPage'
@@ -15,6 +16,12 @@ import { api } from './services/api'
 import { useSessionStore } from './stores/sessionStore'
 
 const queryClient = new QueryClient()
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  const token = useSessionStore((s) => s.token)
+  if (!token) return <Navigate to="/login" replace />
+  return children
+}
 
 function ProtectedApp() {
   const token = useSessionStore((s) => s.token)
@@ -32,9 +39,8 @@ function ProtectedApp() {
     <Routes>
       <Route element={<AppShell clusters={clusters} />}>
         <Route index element={<OverviewPage />} />
-        <Route path="fast" element={<FastModePage />} />
         <Route path="visual" element={<VisualModePage />} />
-        <Route path="workloads" element={<FastModePage />} />
+        <Route path="workloads" element={<FastModeWorkspace />} />
         <Route path="topology" element={<TopologyPage />} />
         <Route path="network" element={<TopologyPage />} />
         <Route path="observability" element={<ObservabilityPage />} />
@@ -52,6 +58,14 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/fast"
+            element={
+              <RequireAuth>
+                <FastModePage />
+              </RequireAuth>
+            }
+          />
           <Route path="/*" element={<ProtectedApp />} />
         </Routes>
       </BrowserRouter>

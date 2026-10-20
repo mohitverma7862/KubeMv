@@ -14,6 +14,24 @@ export function ResourceInspector({ detail }: { detail?: ResourceDetail | null }
           <dd>{detail.row.namespace || '—'}</dd>
           <dt>Age</dt>
           <dd>{detail.row.age}</dd>
+          {detail.row.extra?.ready ? (
+            <>
+              <dt>Ready</dt>
+              <dd>{detail.row.extra.ready}</dd>
+            </>
+          ) : null}
+          {detail.row.extra?.node ? (
+            <>
+              <dt>Node</dt>
+              <dd>{detail.row.extra.node}</dd>
+            </>
+          ) : null}
+          {detail.row.extra?.ip ? (
+            <>
+              <dt>IP</dt>
+              <dd>{detail.row.extra.ip}</dd>
+            </>
+          ) : null}
         </dl>
       ) : (
         <p className="km-fast-muted">No resource selected.</p>

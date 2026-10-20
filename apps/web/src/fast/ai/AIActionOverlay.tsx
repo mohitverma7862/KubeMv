@@ -11,7 +11,7 @@ export function AIActionOverlay({
 }) {
   if (!open) return null
   return (
-    <div className="km-fast-overlay" role="dialog" aria-label="AI actions" data-testid="fast-ai">
+    <div className="km-fast-overlay" role="dialog" aria-label="AI actions" data-testid="fast-ai" data-fast-overlay="">
       <div style={{ color: 'var(--km-ai)' }}>AI</div>
       {finding ? (
         <>

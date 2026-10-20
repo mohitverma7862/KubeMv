@@ -6,7 +6,7 @@ const connectionLabel: Record<FastHeaderModel['connection'], string> = {
   disconnected: '✕ DISCONNECTED',
 }
 
-export function FastHeader({ model }: { model: FastHeaderModel }) {
+export function FastHeader({ model, onVisual }: { model: FastHeaderModel; onVisual?: () => void }) {
   const connection =
     model.connection === 'reconnecting' && model.reconnectAttempt
       ? `${connectionLabel.reconnecting} ${model.reconnectAttempt}`
@@ -29,6 +29,11 @@ export function FastHeader({ model }: { model: FastHeaderModel }) {
       <span className="km-fast-badge" data-state={model.connection} data-testid="fast-connection">
         {connection}
       </span>
+      {onVisual ? (
+        <button type="button" className="km-fast-tab" onClick={onVisual}>
+          Visual
+        </button>
+      ) : null}
       <span className="km-fast-muted" style={{ marginLeft: 'auto' }}>
         {model.clock}
       </span>
