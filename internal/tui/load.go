@@ -60,6 +60,9 @@ func loadKube(ctx context.Context) (Model, error) {
 	}
 	var failed []string
 	for _, kind := range model.Kinds {
+		if !kind.Available || kind.Path == "" {
+			continue
+		}
 		rows, err := client.ListResources(call, kind.Path, kubernetes.ListOptions{Namespace: current.Namespace})
 		if err != nil {
 			failed = append(failed, string(kind.Path))

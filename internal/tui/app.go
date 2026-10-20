@@ -23,19 +23,42 @@ func Run() error {
 
 func run(model *Model) error {
 	app := tview.NewApplication()
+	tview.Styles.PrimitiveBackgroundColor = tcell.NewRGBColor(2, 8, 23)
+	tview.Styles.ContrastBackgroundColor = tcell.NewRGBColor(8, 67, 122)
+	tview.Styles.BorderColor = tcell.NewRGBColor(18, 62, 115)
+	tview.Styles.TitleColor = tcell.NewRGBColor(76, 201, 255)
+	tview.Styles.PrimaryTextColor = tcell.NewRGBColor(185, 200, 232)
+
 	header := tview.NewTextView()
 	nav := tview.NewTextView()
 	table := tview.NewTable().SetSelectable(false, false).SetFixed(1, 0)
 	inspector := tview.NewTextView().SetWrap(true)
+	inspector.SetBorder(true).SetTitle(" Selected Resource ")
+	tabs := tview.NewTextView()
+	workspace := tview.NewTextView().SetWrap(true)
+	workspace.SetBorder(true).SetTitle(" Workspace ")
+	tree := tview.NewTextView().SetWrap(true)
+	tree.SetBorder(true).SetTitle(" Relationship ")
+	quick := tview.NewTextView().SetWrap(true)
+	quick.SetBorder(true).SetTitle(" Quick Help ")
 	status := tview.NewTextView()
-	help := tview.NewTextView().SetText("j/k or arrows move\ng / G first and last\n1-9 switch resource\n/ filter   Esc clear\n? hide help   q quit")
+	palette := tview.NewTextView().SetText(PaletteText())
+	palette.SetBorder(true).SetTitle(" Command palette ")
 
-	body := tview.NewFlex().
+	upper := tview.NewFlex().
 		AddItem(table, 0, 3, true).
 		AddItem(inspector, 36, 0, false)
+	lower := tview.NewFlex().
+		AddItem(workspace, 0, 3, false).
+		AddItem(tree, 0, 2, false).
+		AddItem(quick, 0, 2, false)
+	stack := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(upper, 0, 3, true).
+		AddItem(tabs, 1, 0, false).
+		AddItem(lower, 0, 2, false)
 	pages := tview.NewPages().
-		AddPage("main", body, true, true).
-		AddPage("help", help, true, false)
+		AddPage("main", stack, true, true).
+		AddPage("palette", palette, true, false)
 	root := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(header, 1, 0, false).
 		AddItem(nav, 1, 0, false).
@@ -44,14 +67,13 @@ func run(model *Model) error {
 
 	paint := func() {
 		header.SetText(model.HeaderLine(time.Now()))
-		nav.Clear()
-		for i, kind := range model.Kinds {
-			mark := " "
-			if i == model.Active {
-				mark = "*"
-			}
-			fmt.Fprintf(nav, "%s%d %s  ", mark, i+1, kind.Label)
-		}
+		nav.SetText(model.NavLine())
+		tabs.SetText(model.TabLine())
+		workspace.SetText(model.WorkspaceText())
+		tree.SetText(model.TreeText())
+		quick.SetText(QuickHelp())
+		table.SetTitle(" " + model.FilterLine() + " ")
+		table.SetBorder(true)
 		table.Clear()
 		columns := columnsFor(model.kind().Path)
 		for col, title := range columns {
@@ -61,8 +83,11 @@ func run(model *Model) error {
 		for rowIndex, item := range visible {
 			for col, value := range cells(item, columns) {
 				cell := tview.NewTableCell(value)
+				if columns[col] == "STATUS" {
+					cell.SetTextColor(statusColor(value))
+				}
 				if rowIndex == model.Cursor {
-					cell.SetBackgroundColor(tcell.ColorDarkBlue)
+					cell.SetBackgroundColor(tcell.NewRGBColor(8, 67, 122))
 				}
 				table.SetCell(rowIndex+1, col, cell)
 			}
@@ -70,19 +95,12 @@ func run(model *Model) error {
 		if len(visible) == 0 {
 			table.SetCell(1, 0, tview.NewTableCell("No resources").SetTextColor(tcell.ColorGray))
 		}
-		selected, ok := model.Selected()
-		if !ok {
-			inspector.SetText("Resource Inspector\n\nNo resource selected.")
-		} else {
-			inspector.SetText(fmt.Sprintf("Resource Inspector\n\nName       %s\nNamespace  %s\nStatus     %s\nAge        %s\nNode       %s\nIP         %s\nReady      %s\nRestarts   %s",
-				selected.Name, empty(selected.Namespace), selected.Status, selected.Age,
-				field(selected, "node"), field(selected, "ip"), field(selected, "ready"), field(selected, "restarts")))
-		}
+		inspector.SetText(model.InspectorText())
 		status.SetText(model.StatusLine())
-		if model.Help {
-			pages.ShowPage("help")
+		if model.Palette {
+			pages.ShowPage("palette")
 		} else {
-			pages.HidePage("help")
+			pages.HidePage("palette")
 		}
 	}
 	paint()
@@ -92,6 +110,10 @@ func run(model *Model) error {
 		switch event.Key() {
 		case tcell.KeyCtrlC:
 			quit = model.OnKey("ctrlc")
+		case tcell.KeyCtrlP:
+			quit = model.OnKey("ctrlp")
+		case tcell.KeyCtrlR:
+			quit = model.OnKey("ctrlr")
 		case tcell.KeyEscape:
 			quit = model.OnKey("esc")
 		case tcell.KeyEnter:
@@ -124,9 +146,22 @@ func run(model *Model) error {
 	return app.SetRoot(root, true).Run()
 }
 
+func statusColor(status string) tcell.Color {
+	switch status {
+	case "Running", "Available", "Ready", "Complete":
+		return tcell.NewRGBColor(24, 213, 155)
+	case "Pending", "Progressing", "Terminating":
+		return tcell.NewRGBColor(240, 220, 85)
+	case "CrashLoopBackOff", "Failed", "NotReady":
+		return tcell.NewRGBColor(255, 92, 104)
+	default:
+		return tcell.ColorWhite
+	}
+}
+
 func columnsFor(kind kubernetes.ResourceKindPath) []string {
 	if kind == kubernetes.ResourcePods {
-		return []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP", "NODE"}
+		return []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP", "NODE", "CPU", "MEM"}
 	}
 	return []string{"NAMESPACE", "NAME", "STATUS", "AGE"}
 }
@@ -151,6 +186,10 @@ func cells(row kubernetes.ResourceRow, columns []string) []string {
 			out[i] = field(row, "ip")
 		case "NODE":
 			out[i] = field(row, "node")
+		case "CPU":
+			out[i] = field(row, "cpu")
+		case "MEM":
+			out[i] = field(row, "mem")
 		default:
 			out[i] = ""
 		}

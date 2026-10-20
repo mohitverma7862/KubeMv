@@ -1,7 +1,9 @@
 package tui
 
 import (
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
 )
@@ -50,11 +52,42 @@ func TestMovementAndFilter(t *testing.T) {
 	if model.Filtering || model.Filter != "" || len(model.Visible()) != 3 {
 		t.Fatal("esc should clear the filter")
 	}
-	model.OnRune('2')
-	if model.kind().Path != kubernetes.ResourceDeployments {
+	model.OnRune(':')
+	model.OnRune('d')
+	model.OnRune('p')
+	if !model.OnKey("enter") && model.kind().Path != kubernetes.ResourceDeployments {
 		t.Fatal("expected deployments")
 	}
-	if !model.OnRune('q') {
-		t.Fatal("q should quit")
+	model.OnRune(':')
+	model.OnRune('q')
+	if !model.OnKey("enter") {
+		t.Fatal(":q should quit")
 	}
+}
+
+func TestReferenceLayout(t *testing.T) {
+	model := sampleModel("sample")
+	if !strings.Contains(model.HeaderLine(time.Now()), "Fast Mode (K9s-Parity)") || !strings.Contains(model.HeaderLine(time.Now()), "PRODUCTION") {
+		t.Fatal(model.HeaderLine(time.Now()))
+	}
+	if !strings.Contains(model.NavLine(), "[I] Ingresses") || !strings.Contains(model.NavLine(), "[>] More") {
+		t.Fatal(model.NavLine())
+	}
+	if model.TabLine() != "[Logs] | Events | YAML | Describe | Terminal | Rollout | History" {
+		t.Fatal(model.TabLine())
+	}
+	if !strings.Contains(model.StatusLine(), "R readonly") || !strings.Contains(model.StatusLine(), "0 forwards") {
+		t.Fatal(model.StatusLine())
+	}
+	if !strings.Contains(QuickHelp(), "Ctrl-P    Palette") {
+		t.Fatal(QuickHelp())
+	}
+	if !strings.Contains(strings.Join(columnsFor(kubernetes.ResourcePods), "|"), "CPU|MEM") {
+		t.Fatal(columnsFor(kubernetes.ResourcePods))
+	}
+	selected, _ := model.Selected()
+	if strings.Contains(model.WorkspaceText(), "BEGIN") || strings.Contains(model.InspectorText(), "BEGIN") {
+		t.Fatal("secret material rendered")
+	}
+	_ = selected
 }
