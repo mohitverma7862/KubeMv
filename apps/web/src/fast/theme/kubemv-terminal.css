@@ -40,6 +40,12 @@
   color: inherit;
 }
 
+.km-fast input {
+  background: transparent;
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius);
+}
+
 .km-fast-header,
 .km-fast-nav,
 .km-fast-status {

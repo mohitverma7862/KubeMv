@@ -23,7 +23,7 @@ export function FastShell(props: FastShellProps) {
   const events = props.detail?.events?.map((event) => `${event.type} ${event.reason} ${event.message}`).join('\n')
   return (
     <div className="km-fast" data-testid="fast-shell">
-      <FastHeader model={props.header} onVisual={props.onVisual} />
+      <FastHeader model={props.header} onSignOut={props.onSignOut} />
       <ResourceNav
         items={props.nav}
         moreItems={props.moreNav}

@@ -1,25 +1,32 @@
 # KubeMv
 
-**Advanced Kubernetes Operations Platform** — K9s speed with a modern GUI, security, GitOps, and optional AI assistance.
+Fast Mode is the Kubernetes operator console. Keyboard-first, dense, and modeled on the K9s workflow. There is no dashboard.
 
-**Status:** Phase 8 (AI assist)  
 **Version:** `0.9.0-phase8`
 
-## Product modes
+## Operator console
 
-- **Fast Mode** — keyboard-first operator workflows (K9s-inspired)
-- **Visual Mode** — dashboards, topology, and dense operational views
+The only screen is Fast Mode:
 
-## Repository structure
+- header with cluster, context, namespace, and connection
+- resource navigation
+- resource table
+- inspector and relationship tree
+- logs, events, YAML, and describe
+- command and status bar
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/PHASE-0.md](docs/PHASE-0.md).
+Keys: `j`/`k`, `g`/`G`, Enter, Esc, `/`, `:`, `?`, Ctrl-P, Ctrl-R.
+
+## Repository
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/FAST-MODE-UI-DESIGN.md](docs/FAST-MODE-UI-DESIGN.md).
 
 ## Development
 
 ### Prerequisites
 
 - Go 1.22+
-- Node.js 20+ (for `apps/web`)
+- Node.js 20+
 - `kubectl` (installed by `.cursor/install.sh` in Cloud Agents)
 
 ### Install
@@ -29,23 +36,23 @@ bash .cursor/install.sh
 cd apps/web && npm ci
 ```
 
-### Run API + UI
+### Run the console
 
 ```bash
-# Terminal 1
+# Terminal 1 — API
 go run ./cmd/server
 
-# Terminal 2
+# Terminal 2 — Fast Mode console
 cd apps/web && npm run dev
 ```
 
-Open `http://localhost:5173` and sign in with any username (dev auth).
+Open `http://localhost:5173`. Sign in with any username. The session lands on the Fast Mode console.
 
-### Test & build
+### Test and build
 
 ```bash
 go test ./...
-cd apps/web && npm test && npm run build
+cd apps/web && npm test && npm run lint && npm run build
 ```
 
 ## CLI
@@ -54,6 +61,8 @@ cd apps/web && npm test && npm run build
 go build -o bin/kubemv ./cmd/kubemv
 ./bin/kubemv version
 ```
+
+`kubemv` prints the version. It does not open a second interface.
 
 ## License
 

@@ -22,7 +22,7 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-kp-bg);
-  color: var(--color-kp-text);
-  font-family: var(--font-sans);
+  background: #020817;
+  color: #b9c8e8;
+  font-family: "JetBrains Mono", "Cascadia Mono", "Cascadia Code", Consolas, monospace;
 }
