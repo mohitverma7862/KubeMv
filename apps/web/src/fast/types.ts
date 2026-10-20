@@ -31,6 +31,8 @@ export type TableColumn = {
   value: (row: ResourceRow) => string
 }
 
+export type SortState = { columnId: string; direction: 'asc' | 'desc' } | null
+
 export type OwnerNode = {
   id: string
   kind: string
@@ -54,9 +56,20 @@ export type FastShellProps = {
   onVisual?: () => void
   columns: TableColumn[]
   rows: ResourceRow[]
+  totalCount?: number
   selectedKey?: string
   onSelectRow?: (row: ResourceRow) => void
   filter: string
+  watchAge?: string
+  sort?: SortState
+  onSort?: (columnId: string) => void
+  hiddenColumnIds?: string[]
+  onToggleColumn?: (columnId: string) => void
+  columnWidths?: Record<string, number>
+  onColumnWidth?: (columnId: string, width: number) => void
+  scrollTop?: number
+  scrollToken?: number
+  onTableScroll?: (scrollTop: number) => void
   onFilterChange?: (value: string) => void
   filterInputRef?: Ref<HTMLInputElement>
   watchLabel?: string

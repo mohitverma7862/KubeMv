@@ -55,4 +55,36 @@ describe('FastConsole', () => {
     fireEvent.keyDown(window, { key: 'a' })
     expect(screen.getByTestId('fast-ai')).toHaveTextContent('never run')
   })
+
+  it('moves the selection and restores the previous view', () => {
+    render(<FastConsole clock="12:00:00" />)
+    expect(screen.getByTestId('fast-count')).toHaveTextContent('4')
+    expect(screen.getByTestId('fast-columns-head')).toHaveTextContent('READY')
+    expect(screen.getByTestId('fast-columns-head')).toHaveTextContent('MEM')
+
+    fireEvent.keyDown(window, { key: 'j' })
+    expect(screen.getByTestId('fast-inspector')).toHaveTextContent('payments-worker-6b8d4c7f9-q1w2e')
+    fireEvent.keyDown(window, { key: 'k' })
+    expect(screen.getByTestId('fast-inspector')).toHaveTextContent('api-7c9f8b6d4-k2m9x')
+    fireEvent.keyDown(window, { key: 'G' })
+    expect(screen.getByTestId('fast-inspector')).toHaveTextContent('web-6d5c4b3a2-h7t1a')
+    fireEvent.keyDown(window, { key: 'g' })
+    expect(screen.getByTestId('fast-inspector')).toHaveTextContent('api-7c9f8b6d4-k2m9x')
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Filter' }), { target: { value: 'web' } })
+    fireEvent.click(screen.getByRole('button', { name: '[D] Deployments' }))
+    expect(screen.getByRole('button', { name: '[D] Deployments' })).toHaveAttribute('aria-current', 'page')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.getByRole('button', { name: '[K] Pods' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('textbox', { name: 'Filter' })).toHaveValue('web')
+
+    fireEvent.keyDown(window, { key: 'Enter' })
+    expect(screen.getByTestId('fast-describe')).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByTestId('fast-describe')).not.toBeInTheDocument()
+    expect(screen.getByTestId('fast-logs')).toBeInTheDocument()
+
+    fireEvent.keyDown(window, { key: 'r', ctrlKey: true })
+    expect(screen.getByTestId('fast-table-header')).toHaveTextContent('◷ 0s')
+  })
 })
