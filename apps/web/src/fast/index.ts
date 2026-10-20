@@ -1,3 +1,4 @@
+export { FastConsole } from './FastConsole'
 export { FastShell } from './layout/FastShell'
 export { referenceNav } from './nav'
 export { shortcuts } from './command/registry'

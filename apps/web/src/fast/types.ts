@@ -1,3 +1,4 @@
+import type { Ref } from 'react'
 import type { EventRow, ResourceDetail, ResourceKindPath, ResourceRow } from '../services/types'
 
 export type ConnectionState = 'live' | 'reconnecting' | 'disconnected'
@@ -47,14 +48,24 @@ export type AIFinding = {
 export type FastShellProps = {
   header: FastHeaderModel
   nav: ResourceNavItem[]
+  moreNav?: ResourceNavItem[]
   activeKind?: ResourceKindPath
   onSelectKind?: (kind: ResourceKindPath) => void
+  onVisual?: () => void
   columns: TableColumn[]
   rows: ResourceRow[]
   selectedKey?: string
   onSelectRow?: (row: ResourceRow) => void
   filter: string
   onFilterChange?: (value: string) => void
+  filterInputRef?: Ref<HTMLInputElement>
+  watchLabel?: string
+  command?: string
+  commandActive?: boolean
+  commandError?: string
+  commandInputRef?: Ref<HTMLInputElement>
+  onCommandChange?: (value: string) => void
+  onCommandSubmit?: () => void
   detail?: ResourceDetail | null
   tree?: OwnerNode[]
   workspaceTab: WorkspaceTab
