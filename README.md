@@ -1,5 +1,8 @@
 # KubeMv
 
+> Zero deviation from the Fast Mode reference: https://github.com/mohitverma7862/KubeMv/blob/main/docs/FAST-MODE-TUI-REFERENCE-SPEC.md and https://github.com/mohitverma7862/KubeMv/blob/main/docs/assets/kubemv-fast-mode-reference.svg. Match that specification and that image exactly: same logo, same colors, and same style.
+
+
 Fast Mode is the Kubernetes operator console. Start it in a terminal the same way you start k9s.
 
 ## Start
@@ -15,7 +18,7 @@ go build -o bin/kubemv ./cmd/kubemv
 ./bin/kubemv
 ```
 
-`q` quits. The console uses the current kubeconfig context. Without a kubeconfig it opens the sample console and the status line says why.
+`:q` quits. The console uses the current kubeconfig context. Without a kubeconfig it opens the sample console and the status line says why.
 
 A production context shows PRODUCTION. A nonprod or staging context does not.
 
@@ -29,13 +32,15 @@ A production context shows PRODUCTION. A nonprod or staging context does not.
 
 | Key | Action |
 | --- | --- |
-| `j` / `k` | Next / previous row |
-| `g` / `G` | First / last row |
-| `1`–`9` | Switch resource |
+| `j` / `k` | Select row |
+| `g` / `G` | First / last |
+| Enter | Drill down |
+| Esc | Back |
+| Ctrl-R | Refresh |
 | `/` | Filter |
-| `Esc` | Clear filter or close help |
+| `:` | Command mode (`:pods`, `:q`) |
 | `?` | Help |
-| `q` | Quit |
+| Ctrl-P | Command palette |
 
 ## Requirements
 

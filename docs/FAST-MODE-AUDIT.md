@@ -1,5 +1,8 @@
 # Fast Mode audit
 
+> Zero deviation from the Fast Mode reference: https://github.com/mohitverma7862/KubeMv/blob/main/docs/FAST-MODE-TUI-REFERENCE-SPEC.md and https://github.com/mohitverma7862/KubeMv/blob/main/docs/assets/kubemv-fast-mode-reference.svg. Match that specification and that image exactly: same logo, same colors, and same style.
+
+
 Phase 0 inspection of the repository at `54d8762` (`origin/main` after the Fast Mode TUI design docs). No product code was changed.
 
 The visual contract is `docs/FAST-MODE-UI-DESIGN.md` and `docs/assets/kubemv-fast-mode-reference.svg`. The current Fast Mode screen does not match that contract. It is a dashboard-style resource browser inside the application shell.

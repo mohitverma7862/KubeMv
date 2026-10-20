@@ -1,5 +1,8 @@
 # Phase 4 — XRay & Topology
 
+> Zero deviation from the Fast Mode reference: https://github.com/mohitverma7862/KubeMv/blob/main/docs/FAST-MODE-TUI-REFERENCE-SPEC.md and https://github.com/mohitverma7862/KubeMv/blob/main/docs/assets/kubemv-fast-mode-reference.svg. Match that specification and that image exactly: same logo, same colors, and same style.
+
+
 ## Delivered
 
 - Topology API: `GET /api/v1/clusters/{id}/topology` with `mode=workload|network|dependency`
