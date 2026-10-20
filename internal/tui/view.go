@@ -60,19 +60,26 @@ func (m Model) TabLine() string {
 	return strings.Join(parts, " | ")
 }
 
-// QuickHelp is the persistent help block from the reference.
+// QuickHelp is the persistent help block, drawn from the shortcut registry.
 func QuickHelp() string {
-	return strings.Join([]string{
-		"j/k       Select row",
-		"g/G       First/Last",
-		"Enter     Drill down",
-		"Esc       Back",
-		"Ctrl-R    Refresh",
-		"/         Filter",
-		":         Command mode",
-		"?         Help",
-		"Ctrl-P    Palette",
-	}, "\n")
+	return formatShortcuts(ShortcutsFor("global"))
+}
+
+// ContextualHelp adds the shortcuts that apply to the current focus.
+func ContextualHelp(commanding bool) string {
+	scopes := []string{"row"}
+	if commanding {
+		scopes = append(scopes, "command")
+	}
+	return formatShortcuts(ShortcutsFor(scopes...))
+}
+
+func formatShortcuts(shortcuts []Shortcut) string {
+	lines := make([]string, len(shortcuts))
+	for i, shortcut := range shortcuts {
+		lines[i] = shortcut.Keys + strings.Repeat(" ", max(1, 10-len(shortcut.Keys))) + shortcut.Label
+	}
+	return strings.Join(lines, "\n")
 }
 
 // FilterLine is the filter shown in the resource workspace.
@@ -169,21 +176,16 @@ func emptyKind(kind string) string {
 	return kind
 }
 
-// PaletteText lists the shared command aliases.
+// PaletteText lists the shared command registry.
 func PaletteText() string {
-	return strings.Join([]string{
-		":q :quit",
-		":pods :po",
-		":deploy :dp",
-		":svc",
-		":nodes :no",
-		":events :ev",
-		":jobs",
-		":cronjobs",
-		":cm",
-		":secrets",
-		":ns",
-		":ctx",
-		":readonly",
-	}, "\n")
+	lines := make([]string, len(Commands))
+	for i, command := range Commands {
+		line := ":" + command.Name
+		if len(command.Aliases) > 0 {
+			line += "  (" + strings.Join(command.Aliases, ", ") + ")"
+		}
+		line += "  " + command.Summary
+		lines[i] = line
+	}
+	return strings.Join(lines, "\n")
 }

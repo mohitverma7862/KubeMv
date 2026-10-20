@@ -66,26 +66,11 @@ func (m *Model) kind() Kind {
 // Visible returns the filtered rows for the active resource.
 func (m *Model) Visible() []kubernetes.ResourceRow {
 	rows := m.Rows[m.kind().Path]
-	if m.Filter == "" {
-		return rows
-	}
-	status := ""
-	text := m.Filter
-	if strings.HasPrefix(strings.ToLower(m.Filter), "status=") {
-		status = m.Filter[len("status="):]
-		text = ""
-	}
-	needle := strings.ToLower(text)
 	out := make([]kubernetes.ResourceRow, 0, len(rows))
 	for _, row := range rows {
-		if status != "" && !strings.EqualFold(row.Status, status) {
-			continue
+		if MatchFilter(row, m.Filter) {
+			out = append(out, row)
 		}
-		haystack := strings.ToLower(row.Name + " " + row.Namespace + " " + row.Status + " " + row.Kind)
-		if needle != "" && !strings.Contains(haystack, needle) {
-			continue
-		}
-		out = append(out, row)
 	}
 	return out
 }
@@ -119,6 +104,7 @@ func (m *Model) OnRune(r rune) (quit bool) {
 		if r >= 32 {
 			if m.Commanding {
 				m.Command += string(r)
+				m.suggest()
 			} else if m.Filtering {
 				m.Filter += string(r)
 				m.clamp()
@@ -230,6 +216,7 @@ func (m *Model) OnKey(name string) (quit bool) {
 	case "backspace":
 		if m.Commanding && m.Command != "" {
 			m.Command = m.Command[:len(m.Command)-1]
+			m.suggest()
 		} else if m.Filtering && m.Filter != "" {
 			m.Filter = m.Filter[:len(m.Filter)-1]
 			m.clamp()
@@ -247,8 +234,56 @@ func (m *Model) OnKey(name string) (quit bool) {
 			m.Cursor--
 			m.clamp()
 		}
+	case "tab":
+		if m.Commanding {
+			m.complete()
+		}
 	}
 	return false
+}
+
+func (m *Model) commandToken() string {
+	fields := strings.Fields(m.Command)
+	if len(fields) == 0 || strings.HasSuffix(m.Command, " ") {
+		return ""
+	}
+	return fields[0]
+}
+
+func (m *Model) suggest() {
+	token := m.commandToken()
+	if token == "" {
+		m.CommandError = ""
+		return
+	}
+	m.CommandError = suggestionText(Complete(token), token)
+}
+
+func (m *Model) complete() {
+	matches := Complete(m.commandToken())
+	if len(matches) == 1 {
+		m.Command = matches[0].Name
+		if matches[0].Action == "ns" || matches[0].Action == "ctx" {
+			m.Command += " "
+		}
+		m.CommandError = ""
+		return
+	}
+	m.CommandError = suggestionText(matches, m.commandToken())
+}
+
+func suggestionText(matches []Command, token string) string {
+	if len(matches) == 0 {
+		return "no match"
+	}
+	if len(matches) == 1 && matches[0].Name == strings.ToLower(token) {
+		return ""
+	}
+	names := make([]string, len(matches))
+	for i, match := range matches {
+		names[i] = match.Name
+	}
+	return strings.Join(names, " ")
 }
 
 func (m *Model) openWorkspace(tab string) {
@@ -272,27 +307,16 @@ func (m *Model) applyCommand(line string) bool {
 	if len(fields) == 0 {
 		return false
 	}
-	switch strings.ToLower(fields[0]) {
-	case "q", "quit":
+	command, ok := Lookup(fields[0])
+	if !ok {
+		m.CommandError = "unknown command"
+		return false
+	}
+	switch command.Action {
+	case "quit":
 		return true
-	case "pods", "po":
-		m.selectPath(kubernetes.ResourcePods)
-	case "deploy", "deployments", "dp":
-		m.selectPath(kubernetes.ResourceDeployments)
-	case "svc", "services":
-		m.selectPath(kubernetes.ResourceServices)
-	case "nodes", "no":
-		m.selectPath(kubernetes.ResourceNodes)
-	case "events", "ev":
-		m.selectPath(kubernetes.ResourceEvents)
-	case "jobs", "job":
-		m.selectPath(kubernetes.ResourceJobs)
-	case "cronjobs", "cronjob":
-		m.selectPath(kubernetes.ResourceCronJobs)
-	case "cm", "configmap", "configmaps":
-		m.selectPath(kubernetes.ResourceConfigMaps)
-	case "secrets", "secret":
-		m.selectPath(kubernetes.ResourceSecrets)
+	case "kind":
+		m.selectPath(command.Path)
 	case "ns":
 		if len(fields) < 2 {
 			m.CommandError = "usage: :ns <namespace>"
@@ -308,8 +332,6 @@ func (m *Model) applyCommand(line string) bool {
 		m.Production = IsProduction(m.Cluster, m.Context)
 	case "readonly":
 		m.ReadOnly = true
-	default:
-		m.CommandError = "unknown command"
 	}
 	return false
 }
