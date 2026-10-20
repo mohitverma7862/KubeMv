@@ -1,0 +1,60 @@
+package tui
+
+import (
+	"testing"
+
+	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
+)
+
+func TestIsProduction(t *testing.T) {
+	if !IsProduction("prod-cluster", "prod") {
+		t.Fatal("prod context should be production")
+	}
+	if IsProduction("staging", "dev") {
+		t.Fatal("staging context should not be production")
+	}
+	if IsProduction("nonprod", "nonprod-east") {
+		t.Fatal("nonprod context should not be production")
+	}
+}
+
+func TestMovementAndFilter(t *testing.T) {
+	model := Model{
+		Kinds: []Kind{{Label: "Pods", Path: kubernetes.ResourcePods}, {Label: "Deployments", Path: kubernetes.ResourceDeployments}},
+		Rows: map[kubernetes.ResourceKindPath][]kubernetes.ResourceRow{
+			kubernetes.ResourcePods: {
+				{Name: "api", Status: "Running"},
+				{Name: "payments-worker", Status: "CrashLoopBackOff"},
+				{Name: "web", Status: "Running"},
+			},
+		},
+	}
+	model.OnRune('j')
+	selected, ok := model.Selected()
+	if !ok || selected.Name != "payments-worker" {
+		t.Fatalf("cursor = %s", selected.Name)
+	}
+	model.OnRune('G')
+	selected, _ = model.Selected()
+	if selected.Name != "web" {
+		t.Fatalf("last = %s", selected.Name)
+	}
+	model.OnRune('g')
+	model.OnRune('/')
+	model.OnRune('w')
+	model.OnRune('o')
+	if got := model.Visible(); len(got) != 1 || got[0].Name != "payments-worker" {
+		t.Fatalf("filter = %#v", got)
+	}
+	model.OnKey("esc")
+	if model.Filtering || model.Filter != "" || len(model.Visible()) != 3 {
+		t.Fatal("esc should clear the filter")
+	}
+	model.OnRune('2')
+	if model.kind().Path != kubernetes.ResourceDeployments {
+		t.Fatal("expected deployments")
+	}
+	if !model.OnRune('q') {
+		t.Fatal("q should quit")
+	}
+}
