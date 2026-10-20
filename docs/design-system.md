@@ -1,5 +1,8 @@
 # Design system
 
+> Zero deviation from the Fast Mode reference: https://github.com/mohitverma7862/KubeMv/blob/main/docs/FAST-MODE-TUI-REFERENCE-SPEC.md and https://github.com/mohitverma7862/KubeMv/blob/main/docs/assets/kubemv-fast-mode-reference.svg. Match that specification and that image exactly: same logo, same colors, and same style.
+
+
 The operator UI is a dense control surface: a brass accent on a graphite field, IBM Plex Sans for text, and IBM Plex Mono for status, roles, and shortcuts. Dark is the default. Light is a token swap on `document.documentElement.dataset.theme`.
 
 ## Chrome

@@ -1,5 +1,8 @@
 # KubeMv Fast Mode — Exact TUI Reference Specification
 
+> Zero deviation from the Fast Mode reference: https://github.com/mohitverma7862/KubeMv/blob/main/docs/FAST-MODE-TUI-REFERENCE-SPEC.md and https://github.com/mohitverma7862/KubeMv/blob/main/docs/assets/kubemv-fast-mode-reference.svg. Match that specification and that image exactly: same logo, same colors, and same style.
+
+
 **Status:** Design source of truth  
 **Reference image:** `docs/assets/kubemv-fast-mode-reference.svg`  
 
