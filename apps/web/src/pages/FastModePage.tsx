@@ -1,11 +1,11 @@
-import { useNavigate } from 'react-router-dom'
 import { FastConsole } from '../fast/FastConsole'
+import { useSessionStore } from '../stores/sessionStore'
 
 export function FastModePage() {
-  const navigate = useNavigate()
+  const clear = useSessionStore((s) => s.clear)
   return (
     <div style={{ height: '100%' }}>
-      <FastConsole onVisual={() => navigate('/visual')} />
+      <FastConsole onSignOut={clear} />
     </div>
   )
 }

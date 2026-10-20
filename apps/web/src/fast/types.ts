@@ -53,7 +53,7 @@ export type FastShellProps = {
   moreNav?: ResourceNavItem[]
   activeKind?: ResourceKindPath
   onSelectKind?: (kind: ResourceKindPath) => void
-  onVisual?: () => void
+  onSignOut?: () => void
   columns: TableColumn[]
   rows: ResourceRow[]
   totalCount?: number

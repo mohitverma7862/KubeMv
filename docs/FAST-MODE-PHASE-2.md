@@ -1,10 +1,10 @@
 # Fast Mode Phase 2
 
-Reference-matched terminal shell with sample data. The shell is the operator console at `/fast`. The dashboard stays on its existing routes.
+Reference-matched terminal shell with sample data. The shell is the only operator console.
 
 ## Added
 
-- `FastConsole` mounts `FastShell` full viewport, outside the dashboard chrome.
+- `FastConsole` mounts `FastShell` as the full operator console.
 - Sample cluster data behind `FastDataSource`. The table header says `sample` until Phase 5 connects the API.
 - Pod columns follow the reference: NAME, READY, STATUS, RESTARTS, AGE, IP, NODE, CPU, MEM.
 - Primary resource row plus a More menu for namespaces, workloads, HPA, PDB, and CRDs. Ingress stays disabled.
@@ -15,8 +15,7 @@ Reference-matched terminal shell with sample data. The shell is the operator con
 ## Preserved
 
 - `features/fast/FastModeWorkspace.tsx` remains on `/workloads` and still calls the API.
-- Overview, Visual Mode, topology, observability, security, GitOps, and assist stay on the dashboard shell.
-- Sign-in lands on `/fast`. Visual in the Fast header returns to `/visual`.
+- Sign-in lands on the Fast Mode console.
 
 ## Not done
 

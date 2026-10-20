@@ -1,11 +1,11 @@
 # KubeMv Architecture (Phase 0)
 
-KubeMv is a Kubernetes operations platform combining K9s-style keyboard workflows with a modern GUI. Phase 0 establishes the foundation only — no live cluster mutations, AI, GitOps, or automation.
+KubeMv Fast Mode is the operator console. The API stays behind it. There is no dashboard UI.
 
 ## High-level topology
 
 ```text
-Browser (React + Vite)
+Fast Mode console
         │
         │  REST / JSON (no kube credentials in browser)
         ▼
@@ -23,7 +23,7 @@ KubeMv API (Go)
 
 ```text
 apps/
-  web/          React UI shell, design system, routing
+  web/          Fast Mode operator console
   desktop/      Tauri shell placeholder (future)
 cmd/
   server/       HTTP API entrypoint

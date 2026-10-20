@@ -20,11 +20,11 @@ function formatClock(date: Date): string {
 export function FastConsole({
   source = sampleCluster,
   clock,
-  onVisual,
+  onSignOut,
 }: {
   source?: FastDataSource
   clock?: string
-  onVisual?: () => void
+  onSignOut?: () => void
 }) {
   const [view, setView] = useState<ViewSnapshot>(() => freshView('pods'))
   const [command, setCommand] = useState('')
@@ -232,7 +232,7 @@ export function FastConsole({
       moreNav={moreNav}
       activeKind={kind}
       onSelectKind={selectKind}
-      onVisual={onVisual}
+      onSignOut={onSignOut}
       columns={columns}
       rows={rows}
       totalCount={stableRows.length}
