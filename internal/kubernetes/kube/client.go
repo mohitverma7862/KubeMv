@@ -320,6 +320,30 @@ func (c *liveClient) fetchYAML(ctx context.Context, kind kubemvk8s.ResourceKindP
 			return "", err
 		}
 		return marshalYAML(obj)
+	case kubemvk8s.ResourceSecrets:
+		obj, err := c.clientset.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return "", err
+		}
+		obj.Data = nil
+		obj.StringData = nil
+		text, err := marshalYAML(obj)
+		if err != nil {
+			return "", err
+		}
+		return "# secret data omitted\n" + text, nil
+	case kubemvk8s.ResourceServices:
+		obj, err := c.clientset.CoreV1().Services(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return "", err
+		}
+		return marshalYAML(obj)
+	case kubemvk8s.ResourceConfigMaps:
+		obj, err := c.clientset.CoreV1().ConfigMaps(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return "", err
+		}
+		return marshalYAML(obj)
 	default:
 		return fmt.Sprintf("# detail YAML for %s/%s not implemented in Phase 1\n", kind, name), nil
 	}

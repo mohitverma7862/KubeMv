@@ -7,6 +7,7 @@ import (
 
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes/kube"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -57,6 +58,13 @@ func loadKube(ctx context.Context) (Model, error) {
 	}
 	if model.Namespace == "" {
 		model.Namespace = "all"
+	}
+	model.source = client
+	if cfg, ok := client.(interface{ RESTConfig() *rest.Config }); ok && cfg.RESTConfig() != nil {
+		restCfg := cfg.RESTConfig()
+		model.exec = func(ctx context.Context, namespace, pod, container string) error {
+			return runPodExec(ctx, restCfg, namespace, pod, container)
+		}
 	}
 	if lookup, ok := client.(kube.OwnerLookup); ok {
 		model.fetchOwner = lookup.LookupOwner
