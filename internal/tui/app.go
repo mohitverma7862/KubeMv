@@ -31,7 +31,7 @@ func run(ctx context.Context, model *Model) error {
 	tview.Styles.TitleColor = tcell.NewRGBColor(76, 201, 255)
 	tview.Styles.PrimaryTextColor = tcell.NewRGBColor(185, 200, 232)
 
-	header := tview.NewTextView()
+	header := tview.NewTextView().SetDynamicColors(true)
 	nav := tview.NewTextView()
 	table := tview.NewTable().SetSelectable(false, false).SetFixed(1, 0)
 	inspector := tview.NewTextView().SetWrap(true)

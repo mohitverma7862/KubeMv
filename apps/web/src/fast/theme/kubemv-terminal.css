@@ -68,8 +68,20 @@
 }
 
 .km-fast-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--km-primary);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.km-fast-logo {
+  flex-shrink: 0;
+}
+
+.km-fast-mode {
+  color: var(--km-primary);
 }
 
 .km-fast-muted {

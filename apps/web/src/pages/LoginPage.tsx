@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import { useSessionStore } from '../stores/sessionStore'
+import { KubeMvBrand } from '../fast/layout/KubeMvBrand'
 import '../fast/theme/kubemv-terminal.css'
 
 export function LoginPage() {
@@ -30,7 +31,7 @@ export function LoginPage() {
   return (
     <div className="km-fast" style={{ height: '100%' }}>
       <header className="km-fast-header">
-        <span className="km-fast-brand">KubeMv</span>
+        <KubeMvBrand />
         <span>Fast Mode (K9s-Parity)</span>
       </header>
       <form onSubmit={onSubmit} style={{ padding: 16 }} aria-label="Sign in">

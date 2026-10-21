@@ -465,7 +465,7 @@ func (m Model) HeaderLine(now time.Time) string {
 	if m.Production {
 		prod = " | PRODUCTION"
 	}
-	return "KubeMv | Fast Mode (K9s-Parity) | " + empty(m.Cluster) + " | user: " + empty(m.User) + " | context: " + empty(m.Context) + " | namespace: " + empty(m.Namespace) + prod + " | " + m.connectionLabel() + " | " + now.Format("15:04:05")
+	return BrandLabel + " | Fast Mode (K9s-Parity) | ◈ " + empty(m.Cluster) + " | user: " + empty(m.User) + " | context: " + empty(m.Context) + " | namespace: " + empty(m.Namespace) + prod + " | " + m.connectionLabel() + " | " + now.Format("15:04:05")
 }
 
 func (m Model) connectionLabel() string {

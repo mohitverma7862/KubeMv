@@ -1,4 +1,5 @@
 import type { FastHeaderModel } from '../types'
+import { KubeMvBrand } from './KubeMvBrand'
 
 const connectionLabel: Record<FastHeaderModel['connection'], string> = {
   live: '● LIVE',
@@ -20,9 +21,11 @@ export function FastHeader({
 
   return (
     <header className="km-fast-header" data-testid="fast-header">
-      <span className="km-fast-brand">KubeMv</span>
-      <span>Fast Mode (K9s-Parity)</span>
-      <span>{model.clusterName || 'no cluster'}</span>
+      <KubeMvBrand />
+      <span className="km-fast-muted" aria-hidden>|</span>
+      <span className="km-fast-mode">Fast Mode (K9s-Parity)</span>
+      <span className="km-fast-muted" aria-hidden>|</span>
+      <span>◈ {model.clusterName || 'no cluster'}</span>
       <span className="km-fast-muted">user: {model.userLabel || '—'}</span>
       <span className="km-fast-muted">context: {model.contextName || '—'}</span>
       <span className="km-fast-muted">namespace: {model.namespace || '—'}</span>
