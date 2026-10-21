@@ -7,8 +7,8 @@ import (
 	"time"
 
 	kubemvk8s "github.com/mohitverma7862/KubeMv/internal/kubernetes"
-	apiextensionsclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sclientset "k8s.io/client-go/kubernetes"
@@ -81,6 +81,11 @@ func (c *liveClient) Health(ctx context.Context) (kubemvk8s.ClusterHealth, error
 }
 
 func (c *liveClient) ListResources(ctx context.Context, kind kubemvk8s.ResourceKindPath, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+	rows, _, err := c.listVersion(ctx, kind, opts)
+	return rows, err
+}
+
+func (c *liveClient) listVersion(ctx context.Context, kind kubemvk8s.ResourceKindPath, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	switch kind {
 	case kubemvk8s.ResourcePods:
 		return c.listPods(ctx, opts)
@@ -113,7 +118,7 @@ func (c *liveClient) ListResources(ctx context.Context, kind kubemvk8s.ResourceK
 	case kubemvk8s.ResourcePDB:
 		return c.listPDB(ctx, opts)
 	default:
-		return nil, fmt.Errorf("unsupported kind %s", kind)
+		return nil, "", fmt.Errorf("unsupported kind %s", kind)
 	}
 }
 
@@ -163,190 +168,142 @@ func (c *liveClient) ListCRDs(ctx context.Context) ([]kubemvk8s.CRDInfo, error) 
 	return out, nil
 }
 
-func (c *liveClient) listPods(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listPods(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.CoreV1().Pods(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
 	for _, pod := range list.Items {
 		if !matchSearch(pod.Name, opts.Search) {
 			continue
 		}
-		restarts := 0
-		for _, cs := range pod.Status.ContainerStatuses {
-			restarts += int(cs.RestartCount)
-		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Pod", Namespace: pod.Namespace, Name: pod.Name,
-			Status: string(pod.Status.Phase), Age: age(pod.CreationTimestamp.Time),
-			Labels: pod.Labels,
-			Extra: map[string]string{"restarts": fmt.Sprintf("%d", restarts), "node": pod.Spec.NodeName},
-		})
+		out = append(out, podRow(pod))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listDeployments(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listDeployments(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.AppsV1().Deployments(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, d := range list.Items {
-		if !matchSearch(d.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
 			continue
 		}
-		ready := fmt.Sprintf("%d/%d", d.Status.ReadyReplicas, d.Status.Replicas)
-		status := "Healthy"
-		if d.Status.ReadyReplicas < d.Status.Replicas {
-			status = "Degraded"
-		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Deployment", Namespace: d.Namespace, Name: d.Name,
-			Status: status, Age: age(d.CreationTimestamp.Time), Labels: d.Labels,
-			Extra: map[string]string{"ready": ready},
-		})
+		out = append(out, deploymentRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listServices(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listServices(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.CoreV1().Services(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, svc := range list.Items {
-		if !matchSearch(svc.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
 			continue
 		}
-		ports := make([]string, 0, len(svc.Spec.Ports))
-		for _, p := range svc.Spec.Ports {
-			ports = append(ports, fmt.Sprintf("%d", p.Port))
-		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Service", Namespace: svc.Namespace, Name: svc.Name,
-			Status: "Active", Age: age(svc.CreationTimestamp.Time), Labels: svc.Labels,
-			Extra: map[string]string{"type": string(svc.Spec.Type), "ports": strings.Join(ports, ",")},
-		})
+		out = append(out, serviceRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listNodes(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listNodes(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	list, err := c.clientset.CoreV1().Nodes().List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, node := range list.Items {
-		if !matchSearch(node.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
 			continue
 		}
-		status := "NotReady"
-		for _, c := range node.Status.Conditions {
-			if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
-				status = "Ready"
-			}
-		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Node", Name: node.Name, Status: status, Age: age(node.CreationTimestamp.Time), Labels: node.Labels,
-		})
+		out = append(out, nodeRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listEvents(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listEvents(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.CoreV1().Events(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, ev := range list.Items {
-		if !matchSearch(ev.Name, opts.Search) && !matchSearch(ev.InvolvedObject.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) && !matchSearch(item.InvolvedObject.Name, opts.Search) {
 			continue
 		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Event", Namespace: ev.Namespace, Name: ev.Name,
-			Status: ev.Type, Age: age(ev.LastTimestamp.Time),
-			Extra: map[string]string{"reason": ev.Reason, "message": ev.Message, "object": ev.InvolvedObject.Name},
-		})
+		out = append(out, eventRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listConfigMaps(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listConfigMaps(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.CoreV1().ConfigMaps(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, cm := range list.Items {
-		if !matchSearch(cm.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
 			continue
 		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "ConfigMap", Namespace: cm.Namespace, Name: cm.Name,
-			Status: "Active", Age: age(cm.CreationTimestamp.Time), Labels: cm.Labels,
-			Extra: map[string]string{"keys": fmt.Sprintf("%d", len(cm.Data)+len(cm.BinaryData))},
-		})
+		out = append(out, configMapRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listSecrets(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
+func (c *liveClient) listSecrets(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
 	ns := namespaceOrAll(opts.Namespace)
 	list, err := c.clientset.CoreV1().Secrets(ns).List(ctx, listOptions(opts))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
-	for _, secret := range list.Items {
-		if !matchSearch(secret.Name, opts.Search) {
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
 			continue
 		}
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Secret", Namespace: secret.Namespace, Name: secret.Name,
-			Status: "Active", Age: age(secret.CreationTimestamp.Time), Labels: secret.Labels,
-			Extra: map[string]string{"type": string(secret.Type), "keys": fmt.Sprintf("%d", len(secret.Data))},
-		})
+		out = append(out, secretRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listNamespacesRows(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, error) {
-	namespaces, err := c.ListNamespaces(ctx, opts)
+func (c *liveClient) listNamespacesRows(ctx context.Context, opts kubemvk8s.ListOptions) ([]kubemvk8s.ResourceRow, string, error) {
+	list, err := c.clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	out := make([]kubemvk8s.ResourceRow, 0, len(namespaces))
-	for _, ns := range namespaces {
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "Namespace", Name: ns.Name, Status: ns.Status, Age: age(ns.CreatedAt),
-		})
+	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
+	for _, item := range list.Items {
+		if !matchSearch(item.Name, opts.Search) {
+			continue
+		}
+		out = append(out, namespaceRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
-func (c *liveClient) listCRDRows(ctx context.Context) ([]kubemvk8s.ResourceRow, error) {
-	crds, err := c.ListCRDs(ctx)
+func (c *liveClient) listCRDRows(ctx context.Context) ([]kubemvk8s.ResourceRow, string, error) {
+	list, err := c.ext.ApiextensionsV1().CustomResourceDefinitions().List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	out := make([]kubemvk8s.ResourceRow, 0, len(crds))
-	for _, crd := range crds {
-		out = append(out, kubemvk8s.ResourceRow{
-			Kind: "CustomResourceDefinition", Name: crd.Name, Status: crd.Scope, Age: "-",
-			Extra: map[string]string{"group": crd.Group, "version": crd.Version, "kind": crd.Kind},
-		})
+	out := make([]kubemvk8s.ResourceRow, 0, len(list.Items))
+	for _, item := range list.Items {
+		out = append(out, crdRow(item))
 	}
-	return out, nil
+	return out, list.ResourceVersion, nil
 }
 
 func (c *liveClient) fetchYAML(ctx context.Context, kind kubemvk8s.ResourceKindPath, namespace, name string) (string, error) {
