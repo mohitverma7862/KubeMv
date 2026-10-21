@@ -101,43 +101,8 @@ func (m Model) TreeText() string {
 }
 
 // WorkspaceText is the lower terminal workspace body.
-func (m Model) WorkspaceText() string {
-	selected, ok := m.Selected()
-	switch m.workspace() {
-	case "events":
-		if !ok {
-			return "No events loaded."
-		}
-		return selected.Status + "  " + selected.Name
-	case "yaml":
-		if !ok {
-			return "No YAML loaded."
-		}
-		if selected.Kind == "Secret" {
-			return "apiVersion: v1\nkind: Secret\nmetadata:\n  name: " + selected.Name + "\n  # secret data omitted"
-		}
-		ns := selected.Namespace
-		return "apiVersion: v1\nkind: " + emptyKind(selected.Kind) + "\nmetadata:\n  name: " + selected.Name + "\n  namespace: " + ns
-	case "describe":
-		if !ok {
-			return "No describe loaded."
-		}
-		return "Name: " + selected.Name + "\nNamespace: " + empty(selected.Namespace) + "\nStatus: " + selected.Status + "\nAge: " + selected.Age
-	case "terminal":
-		return "Terminal is not connected."
-	case "rollout":
-		return "Rollout is not connected."
-	case "history":
-		if len(m.back) == 0 {
-			return "No navigation history."
-		}
-		return strings.Join(m.back, "\n")
-	default:
-		if !ok {
-			return "No logs loaded."
-		}
-		return selected.Name + "\nlevel=info msg=\"ready\" status=" + selected.Status
-	}
+func (m *Model) WorkspaceText() string {
+	return m.workspaceBody()
 }
 
 func emptyKind(kind string) string {

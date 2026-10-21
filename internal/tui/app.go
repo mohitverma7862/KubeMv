@@ -74,6 +74,7 @@ func run(ctx context.Context, model *Model) error {
 		header.SetText(model.HeaderLine(time.Now()))
 		nav.SetText(model.NavLine())
 		tabs.SetText(model.TabLine())
+		workspace.SetTitle(model.WorkspaceTitle())
 		workspace.SetText(model.WorkspaceText())
 		tree.SetText(model.TreeText())
 		if model.Help {
@@ -129,6 +130,20 @@ func run(ctx context.Context, model *Model) error {
 				paint()
 			})
 		})
+		model.ScheduleWorkspace(func(apply func()) {
+			app.QueueUpdateDraw(func() {
+				apply()
+				paint()
+			})
+		})
+		model.SyncLogFollow(func(line string) {
+			app.QueueUpdateDraw(func() {
+				if line != "" {
+					model.Logs.Append(line, time.Now())
+				}
+				paint()
+			})
+		})
 	}
 	paint()
 	go serveWatch(ctx, app, model, watch, paint)
@@ -154,6 +169,7 @@ func run(ctx context.Context, model *Model) error {
 			quit = model.OnKey("up")
 		case tcell.KeyTab:
 			model.OnKey("tab")
+			runSideEffects(app, model)
 			paint()
 			return nil
 		case tcell.KeyRune:
@@ -163,6 +179,7 @@ func run(ctx context.Context, model *Model) error {
 			app.Stop()
 			return nil
 		}
+		runSideEffects(app, model)
 		paint()
 		return nil
 	})

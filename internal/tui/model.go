@@ -57,6 +57,23 @@ type Model struct {
 	fetchOwner       func(context.Context, kubernetes.OwnerRef) (kubernetes.ResourceRow, error)
 	ownerBusy        map[string]bool
 	ownerMiss        map[string]bool
+	Logs             LogBuffer
+	Visits           []string
+	YAML             string
+	EventsText       string
+	Describe         string
+	RolloutText      string
+	LogWidth         int
+	LogEpoch         int
+	LogSave          bool
+	ExecRequested    bool
+	source           kubernetes.ClusterClient
+	exec             func(context.Context, string, string, string) error
+	logPod           string
+	pageKey          string
+	pageBusy         map[string]bool
+	followCancel     context.CancelFunc
+	followKey        string
 }
 
 // IsProduction reports whether the connected context should show the production badge.
@@ -102,6 +119,7 @@ func (m *Model) clamp() {
 	if m.Cursor >= len(visible) {
 		m.Cursor = len(visible) - 1
 	}
+	m.noteVisit()
 }
 
 func (m *Model) Selected() (kubernetes.ResourceRow, bool) {
@@ -127,6 +145,10 @@ func (m *Model) OnRune(r rune) (quit bool) {
 				m.Command += string(r)
 			}
 		}
+		return false
+	}
+	if m.onWorkspaceRune(r) {
+		m.clamp()
 		return false
 	}
 	switch r {
@@ -174,6 +196,18 @@ func (m *Model) OnRune(r rune) (quit bool) {
 		m.openWorkspace("yaml")
 	case 's':
 		m.openWorkspace("terminal")
+		if m.ReadOnly {
+			m.CommandError = "readonly: exec is rejected"
+			break
+		}
+		row, ok := m.Selected()
+		if !ok || row.Kind != "Pod" {
+			m.CommandError = "exec needs a pod"
+			break
+		}
+		if m.exec != nil {
+			m.ExecRequested = true
+		}
 	case 'D':
 		if m.ReadOnly {
 			m.CommandError = "readonly: delete is rejected"
@@ -192,6 +226,11 @@ func (m *Model) OnRune(r rune) (quit bool) {
 func (m *Model) OnKey(name string) (quit bool) {
 	switch name {
 	case "ctrlc":
+		if m.workspace() == "logs" && m.Logs.Follow {
+			m.Logs.Stop()
+			m.stopFollow()
+			return false
+		}
 		return true
 	case "ctrlp":
 		m.Palette = !m.Palette
@@ -201,6 +240,12 @@ func (m *Model) OnKey(name string) (quit bool) {
 		m.ownerMiss = nil
 		return false
 	case "esc":
+		if m.Logs.Searching {
+			m.Logs.Searching = false
+			m.Logs.Query = ""
+			m.Logs.match = 0
+			return false
+		}
 		if m.Palette {
 			m.Palette = false
 			return false
@@ -257,6 +302,11 @@ func (m *Model) OnKey(name string) (quit bool) {
 		m.openWorkspace("describe")
 		return false
 	case "backspace":
+		if m.Logs.Searching && m.Logs.Query != "" {
+			m.Logs.Query = m.Logs.Query[:len(m.Logs.Query)-1]
+			m.Logs.match = 0
+			return false
+		}
 		if m.Commanding && m.Command != "" {
 			m.Command = m.Command[:len(m.Command)-1]
 			m.suggest()

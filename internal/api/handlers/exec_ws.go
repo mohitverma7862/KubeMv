@@ -2,18 +2,15 @@ package handlers
 
 import (
 	"context"
-	"io"
-	"net/http"
-	"strings"
 	"github.com/gorilla/websocket"
 	"github.com/mohitverma7862/KubeMv/internal/auth"
 	"github.com/mohitverma7862/KubeMv/internal/httputil"
 	"github.com/mohitverma7862/KubeMv/internal/kubernetes"
-	corev1 "k8s.io/api/core/v1"
-	k8sclientset "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/scheme"
+	"github.com/mohitverma7862/KubeMv/internal/kubernetes/kube"
+	"io"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/remotecommand"
+	"net/http"
+	"strings"
 )
 
 var upgrader = websocket.Upgrader{
@@ -82,31 +79,6 @@ func runStubExec(conn *websocket.Conn, namespace, pod, container string) {
 }
 
 func runLiveExec(ctx context.Context, cfg *rest.Config, conn *websocket.Conn, namespace, pod, container string) {
-	clientset, err := k8sclientset.NewForConfig(cfg)
-	if err != nil {
-		_ = conn.WriteMessage(websocket.TextMessage, []byte("exec init failed\r\n"))
-		return
-	}
-	req := clientset.CoreV1().RESTClient().Post().
-		Resource("pods").
-		Name(pod).
-		Namespace(namespace).
-		SubResource("exec").
-		VersionedParams(&corev1.PodExecOptions{
-			Container: container,
-			Command:   []string{"/bin/sh"},
-			Stdin:     true,
-			Stdout:    true,
-			Stderr:    true,
-			TTY:       true,
-		}, scheme.ParameterCodec)
-
-	executor, err := remotecommand.NewSPDYExecutor(cfg, "POST", req.URL())
-	if err != nil {
-		runStubExec(conn, namespace, pod, container)
-		return
-	}
-
 	stdinReader, stdinWriter := io.Pipe()
 	go func() {
 		for {
@@ -118,12 +90,13 @@ func runLiveExec(ctx context.Context, cfg *rest.Config, conn *websocket.Conn, na
 			_, _ = stdinWriter.Write(msg)
 		}
 	}()
-
-	err = executor.StreamWithContext(ctx, remotecommand.StreamOptions{
-		Stdin:  stdinReader,
-		Stdout: &wsWriter{conn: conn},
-		Stderr: &wsWriter{conn: conn},
-		Tty:    true,
+	err := kube.StreamExec(ctx, cfg, kube.ExecOptions{
+		Namespace: namespace,
+		Pod:       pod,
+		Container: container,
+		Stdin:     stdinReader,
+		Stdout:    &wsWriter{conn: conn},
+		Stderr:    &wsWriter{conn: conn},
 	})
 	if err != nil {
 		_ = conn.WriteMessage(websocket.TextMessage, []byte("exec ended: "+err.Error()+"\r\n"))

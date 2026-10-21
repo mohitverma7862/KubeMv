@@ -6,7 +6,6 @@ import (
 	"io"
 	"strings"
 
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 
@@ -35,15 +34,7 @@ func (c *liveClient) ListPodContainers(ctx context.Context, namespace, podName s
 }
 
 func (c *liveClient) GetPodLogs(ctx context.Context, namespace, podName string, opts kubemvk8s.LogOptions) (string, error) {
-	tail := opts.TailLines
-	if tail == 0 {
-		tail = 500
-	}
-	req := c.clientset.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
-		Container: opts.Container,
-		Previous:  opts.Previous,
-		TailLines: &tail,
-	})
+	req := c.clientset.CoreV1().Pods(namespace).GetLogs(podName, podLogOptions(opts, false))
 	stream, err := req.Stream(ctx)
 	if err != nil {
 		return "", err
