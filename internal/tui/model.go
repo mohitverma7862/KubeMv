@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -48,8 +49,14 @@ type Model struct {
 	ResourceVersion  string
 	WatchError       string
 	RefreshCount     int
+	Relations        map[string]kubernetes.ResourceRow
+	TreeCursor       int
+	TreeFocus        bool
 	back             []string
 	watch            func(kind kubernetes.ResourceKindPath, namespace string) (kubernetes.WatchSource, bool)
+	fetchOwner       func(context.Context, kubernetes.OwnerRef) (kubernetes.ResourceRow, error)
+	ownerBusy        map[string]bool
+	ownerMiss        map[string]bool
 }
 
 // IsProduction reports whether the connected context should show the production badge.
@@ -124,12 +131,31 @@ func (m *Model) OnRune(r rune) (quit bool) {
 	}
 	switch r {
 	case 'j':
+		if m.TreeFocus {
+			m.TreeCursor++
+			m.clampTree()
+			return false
+		}
 		m.Cursor++
 	case 'k':
+		if m.TreeFocus {
+			m.TreeCursor--
+			m.clampTree()
+			return false
+		}
 		m.Cursor--
 	case 'g':
+		if m.TreeFocus {
+			m.TreeCursor = 0
+			return false
+		}
 		m.Cursor = 0
 	case 'G':
+		if m.TreeFocus {
+			m.TreeCursor = len(m.treeNodes()) - 1
+			m.clampTree()
+			return false
+		}
 		m.Cursor = len(m.Visible()) - 1
 	case '/':
 		m.Filtering = true
@@ -172,6 +198,7 @@ func (m *Model) OnKey(name string) (quit bool) {
 		return false
 	case "ctrlr":
 		m.RefreshCount++
+		m.ownerMiss = nil
 		return false
 	case "esc":
 		if m.Palette {
@@ -199,6 +226,10 @@ func (m *Model) OnKey(name string) (quit bool) {
 			m.clamp()
 			return false
 		}
+		if m.TreeFocus {
+			m.TreeFocus = false
+			return false
+		}
 		if len(m.back) > 0 {
 			m.Workspace = m.back[len(m.back)-1]
 			m.back = m.back[:len(m.back)-1]
@@ -217,6 +248,10 @@ func (m *Model) OnKey(name string) (quit bool) {
 		if m.Filtering {
 			m.Filtering = false
 			m.clamp()
+			return false
+		}
+		if m.TreeFocus {
+			m.drillTree()
 			return false
 		}
 		m.openWorkspace("describe")
@@ -245,6 +280,11 @@ func (m *Model) OnKey(name string) (quit bool) {
 	case "tab":
 		if m.Commanding {
 			m.complete()
+			return false
+		}
+		if !m.Filtering && !m.Confirm {
+			m.TreeFocus = !m.TreeFocus
+			m.clampTree()
 		}
 	}
 	return false

@@ -92,41 +92,12 @@ func (m Model) FilterLine() string {
 
 // InspectorText is the right-hand selected resource panel.
 func (m Model) InspectorText() string {
-	selected, ok := m.Selected()
-	if !ok {
-		return "Selected Resource\n\nNo resource selected.\n\nl Logs  s Shell  d Describe  y YAML  D Delete"
-	}
-	secret := selected.Kind == "Secret"
-	body := "Selected Resource\n\n" + selected.Name + "  " + selected.Status
-	if secret {
-		body += "\n\nmetadata only\nsecret values hidden"
-	} else {
-		body += "\nnamespace  " + empty(selected.Namespace)
-		body += "\nnode       " + field(selected, "node")
-		body += "\nIP         " + field(selected, "ip")
-		body += "\nready      " + field(selected, "ready")
-		body += "\nrestarts   " + field(selected, "restarts")
-		body += "\nage        " + selected.Age
-		body += "\ncpu        " + field(selected, "cpu")
-		body += "\nmem        " + field(selected, "mem")
-	}
-	body += "\n\nl Logs  s Shell  d Describe  y YAML  D Delete"
-	if m.Confirm {
-		body += "\n\nDELETE POD\n" + m.Namespace + " / " + selected.Name + "\nThis action cannot be automatically undone.\nType DELETE to confirm."
-	}
-	return body
+	return m.inspectorBody()
 }
 
 // TreeText is the owner chain beside the lower workspace.
 func (m Model) TreeText() string {
-	selected, ok := m.Selected()
-	if !ok {
-		return "No owner chain."
-	}
-	if strings.HasPrefix(selected.Name, "api-") {
-		return "Deployment (api)\n└─ ReplicaSet (api-7c9f8b6d4)\n   └─ Pod (" + selected.Name + ")\n      └─ Containers\n         └─ api"
-	}
-	return "No owner chain."
+	return m.treeBody()
 }
 
 // WorkspaceText is the lower terminal workspace body.
