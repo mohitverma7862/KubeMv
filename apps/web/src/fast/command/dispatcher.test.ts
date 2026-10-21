@@ -3,7 +3,7 @@ import { dispatchKey } from './dispatcher'
 
 describe('dispatchKey', () => {
   it('opens overlays and moves the table from the shell', () => {
-    const shell = { region: 'shell' as const, overlayOpen: false }
+    const shell = { region: 'shell' as const, overlayOpen: false, commandActive: false }
     expect(dispatchKey({ key: '?' }, shell)).toEqual({ type: 'open-help' })
     expect(dispatchKey({ key: '/' }, shell)).toEqual({ type: 'enter-filter' })
     expect(dispatchKey({ key: ':' }, shell)).toEqual({ type: 'enter-command' })
@@ -19,7 +19,7 @@ describe('dispatchKey', () => {
   })
 
   it('lets an input consume shortcuts and still closes on Esc', () => {
-    const input = { region: 'input' as const, overlayOpen: false }
+    const input = { region: 'input' as const, overlayOpen: false, commandActive: false }
     expect(dispatchKey({ key: '?' }, input)).toBeNull()
     expect(dispatchKey({ key: '/' }, input)).toBeNull()
     expect(dispatchKey({ key: 'p', ctrlKey: true }, input)).toBeNull()
@@ -29,7 +29,7 @@ describe('dispatchKey', () => {
   })
 
   it('closes an open overlay and ignores further shortcuts', () => {
-    const overlay = { region: 'shell' as const, overlayOpen: true }
+    const overlay = { region: 'shell' as const, overlayOpen: true, commandActive: false }
     expect(dispatchKey({ key: 'Escape' }, overlay)).toEqual({ type: 'close' })
     expect(dispatchKey({ key: '?' }, overlay)).toBeNull()
     expect(dispatchKey({ key: 'j' }, overlay)).toBeNull()

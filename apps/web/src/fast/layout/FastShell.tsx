@@ -42,6 +42,7 @@ export function FastShell(props: FastShellProps) {
                 totalCount={props.totalCount}
                 selectedKey={props.selectedKey}
                 onSelectRow={props.onSelectRow}
+                onActivateRow={props.onActivateRow}
                 filter={props.filter}
                 liveLabel={props.watchLabel ?? liveLabel[props.header.connection]}
                 watchAge={props.watchAge}
@@ -99,6 +100,7 @@ export function FastShell(props: FastShellProps) {
         items={[...props.nav, ...(props.moreNav ?? [])]}
         onClose={() => props.onPaletteOpenChange?.(false)}
         onSelectKind={props.onSelectKind}
+        onRunCommand={props.onPaletteCommand}
       />
       <AIActionOverlay
         open={Boolean(props.aiOpen)}

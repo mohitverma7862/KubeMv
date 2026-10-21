@@ -10,6 +10,7 @@ export const ResourceRowView = memo(function ResourceRowView({
   top,
   widths,
   onSelect,
+  onActivate,
 }: {
   row: ResourceRow
   columns: TableColumn[]
@@ -17,6 +18,7 @@ export const ResourceRowView = memo(function ResourceRowView({
   top: number
   widths: Record<string, number>
   onSelect?: (row: ResourceRow) => void
+  onActivate?: (row: ResourceRow) => void
 }) {
   return (
     <div
@@ -26,6 +28,7 @@ export const ResourceRowView = memo(function ResourceRowView({
       className="km-fast-row"
       style={{ top, height: ROW_HEIGHT }}
       onClick={() => onSelect?.(row)}
+      onDoubleClick={() => onActivate?.(row)}
     >
       {columns.map((column) => (
         <span key={column.id} role="cell" style={{ width: widths[column.id] ?? defaultColumnWidth(column.id) }}>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { freshView, goBack, visitKind } from './navigation'
+import { freshView, goBack, goForward, visitKind } from './navigation'
 
 describe('navigation history', () => {
   it('restores the previous view on back and keeps a remembered visit', () => {
@@ -15,5 +15,13 @@ describe('navigation history', () => {
 
     const again = visitKind(back?.stack ?? [], back?.current ?? pods, 'deployments', forward.current)
     expect(again.current.kind).toBe('deployments')
+  })
+
+  it('moves forward through the forward stack', () => {
+    const deployments = freshView('deployments')
+    const forward = [deployments]
+    const step = goForward(forward)
+    expect(step?.current.kind).toBe('deployments')
+    expect(step?.forward).toEqual([])
   })
 })

@@ -1,4 +1,5 @@
 import type { Ref } from 'react'
+import type { CommandDefinition } from '../lib/commands'
 import type { EventRow, ResourceDetail, ResourceKindPath, ResourceRow } from '../services/types'
 
 export type ConnectionState = 'live' | 'reconnecting' | 'disconnected'
@@ -59,6 +60,7 @@ export type FastShellProps = {
   totalCount?: number
   selectedKey?: string
   onSelectRow?: (row: ResourceRow) => void
+  onActivateRow?: (row: ResourceRow) => void
   filter: string
   watchAge?: string
   sort?: SortState
@@ -89,6 +91,7 @@ export type FastShellProps = {
   onHelpOpenChange?: (open: boolean) => void
   paletteOpen?: boolean
   onPaletteOpenChange?: (open: boolean) => void
+  onPaletteCommand?: (command: CommandDefinition) => void
   aiOpen?: boolean
   onAiOpenChange?: (open: boolean) => void
   aiFinding?: AIFinding | null
