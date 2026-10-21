@@ -12,6 +12,7 @@ export function ResourceTable({
   totalCount,
   selectedKey,
   onSelectRow,
+  onActivateRow,
   filter,
   liveLabel,
   watchAge,
@@ -31,6 +32,7 @@ export function ResourceTable({
   totalCount?: number
   selectedKey?: string
   onSelectRow?: (row: ResourceRow) => void
+  onActivateRow?: (row: ResourceRow) => void
   filter: string
   liveLabel: string
   watchAge?: string
@@ -174,6 +176,7 @@ export function ResourceTable({
                   selected={rowKey(row) === selectedKey}
                   top={(windowed.start + offset) * ROW_HEIGHT}
                   onSelect={onSelectRow}
+                  onActivate={onActivateRow}
                 />
               ))}
             </div>

@@ -1,4 +1,5 @@
 import type { Ref } from 'react'
+import { CommandAutocomplete } from './CommandAutocomplete'
 import { statusShortcuts } from './registry'
 
 export function CommandBar({
@@ -50,6 +51,7 @@ export function CommandBar({
               borderRadius: 'var(--km-radius)',
             }}
           />
+          <CommandAutocomplete value={command ?? ''} />
         </label>
       ) : null}
       {commandError ? <span className="km-fast-muted">{commandError}</span> : null}

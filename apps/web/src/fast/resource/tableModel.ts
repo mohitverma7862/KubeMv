@@ -28,13 +28,23 @@ export function visibleWindow(
   return { start, end }
 }
 
-export function moveSelection(index: number, count: number, action: 'next' | 'prev' | 'first' | 'last'): number {
+export type MoveAction = 'next' | 'prev' | 'first' | 'last' | 'page-up' | 'page-down'
+
+export function moveSelection(
+  index: number,
+  count: number,
+  action: MoveAction,
+  pageSize = 12,
+): number {
   if (count <= 0) return -1
   if (action === 'first') return 0
   if (action === 'last') return count - 1
-  if (index < 0) return action === 'prev' ? count - 1 : 0
+  if (index < 0) return action === 'prev' || action === 'page-up' ? count - 1 : 0
   if (action === 'next') return Math.min(count - 1, index + 1)
-  return Math.max(0, index - 1)
+  if (action === 'prev') return Math.max(0, index - 1)
+  if (action === 'page-up') return Math.max(0, index - pageSize)
+  if (action === 'page-down') return Math.min(count - 1, index + pageSize)
+  return index
 }
 
 function ageSeconds(value: string): number | null {

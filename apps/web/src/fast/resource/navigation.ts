@@ -41,3 +41,10 @@ export function goBack(stack: ViewSnapshot[]): { stack: ViewSnapshot[]; current:
   if (stack.length === 0) return null
   return { stack: stack.slice(0, -1), current: stack[stack.length - 1] }
 }
+
+export function goForward(
+  forward: ViewSnapshot[],
+): { forward: ViewSnapshot[]; current: ViewSnapshot } | null {
+  if (forward.length === 0) return null
+  return { forward: forward.slice(0, -1), current: forward[forward.length - 1] }
+}

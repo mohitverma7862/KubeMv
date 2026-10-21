@@ -12,7 +12,8 @@ export function CommandAutocomplete({ value }: { value: string }) {
     <ul data-testid="fast-command-suggest" className="km-fast-muted">
       {matches.slice(0, 6).map((command) => (
         <li key={command.id}>
-          {command.aliases[0]} {parsed.kind === command.kind ? '(active)' : ''}
+          {command.aliases[0]}{' '}
+          {parsed.type === 'resource' && parsed.kind === command.kind ? '(match)' : ''}
         </li>
       ))}
     </ul>

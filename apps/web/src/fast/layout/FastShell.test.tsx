@@ -27,7 +27,9 @@ describe('FastShell', () => {
         workspaceTab="logs"
       />,
     )
+    expect(screen.getByTestId('fast-brand')).toHaveTextContent('KubeMv')
     expect(screen.getByTestId('fast-header')).toHaveTextContent('Fast Mode (K9s-Parity)')
+    expect(screen.getByTestId('fast-header')).toHaveTextContent('◈ prod-cluster')
     expect(screen.getByTestId('fast-header')).toHaveTextContent('PRODUCTION')
     expect(screen.getByTestId('fast-header')).toHaveTextContent('READ ONLY')
     expect(screen.getByTestId('fast-connection')).toHaveTextContent('DISCONNECTED')

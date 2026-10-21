@@ -87,4 +87,27 @@ describe('FastConsole', () => {
     fireEvent.keyDown(window, { key: 'r', ctrlKey: true })
     expect(screen.getByTestId('fast-table-header')).toHaveTextContent('◷ 0s')
   })
+
+  it('switches resource views from nav mnemonics', () => {
+    render(<FastConsole clock="12:00:00" />)
+    const nav = [
+      { key: 'E', label: '[E] Events', kind: 'events' },
+      { key: 'N', label: '[N] Nodes', kind: 'nodes' },
+      { key: 'M', label: '[M] ConfigMaps', kind: 'configmaps' },
+      { key: 'D', label: '[D] Deployments', kind: 'deployments' },
+      { key: 'S', label: '[S] Services', kind: 'services' },
+      { key: 'J', label: '[J] Jobs', kind: 'jobs' },
+      { key: 'C', label: '[C] CronJobs', kind: 'cronjobs' },
+      { key: 'R', label: '[R] Secrets', kind: 'secrets' },
+      { key: 'K', label: '[K] Pods', kind: 'pods' },
+    ] as const
+    for (const item of nav) {
+      fireEvent.keyDown(window, { key: item.key })
+      expect(screen.getByRole('button', { name: item.label })).toHaveAttribute('aria-current', 'page')
+    }
+    fireEvent.keyDown(window, { key: 'n' })
+    expect(screen.getByRole('button', { name: '[N] Nodes' })).toHaveAttribute('aria-current', 'page')
+    fireEvent.keyDown(window, { key: '1' })
+    expect(screen.getByRole('button', { name: '[K] Pods' })).toHaveAttribute('aria-current', 'page')
+  })
 })

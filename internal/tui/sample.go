@@ -67,6 +67,25 @@ func sampleModel(note string) Model {
 			kubernetes.ResourceNodes: {
 				row("Node", "", "ip-10-0-1-12", "Ready", "40d", nil),
 			},
+			kubernetes.ResourceEvents: {
+				row("Event", "production", "payments-worker.18a3", "Warning", "1m", map[string]string{"reason": "BackOff", "object": "payments-worker-6b8d4c7f9-q1w2e"}),
+				row("Event", "production", "api.9c21", "Normal", "4h", map[string]string{"reason": "Started", "object": "api-7c9f8b6d4-k2m9x"}),
+			},
+			kubernetes.ResourceJobs: {
+				row("Job", "production", "migrate-db", "Complete", "2d", map[string]string{"completions": "1/1"}),
+			},
+			kubernetes.ResourceCronJobs: {
+				row("CronJob", "production", "backup", "Active", "30d", map[string]string{"schedule": "0 2 * * *"}),
+			},
+			kubernetes.ResourceConfigMaps: {
+				row("ConfigMap", "production", "api", "Active", "12d", map[string]string{"keys": "3"}),
+			},
+			kubernetes.ResourceSecrets: {
+				row("Secret", "production", "db", "Active", "12d", map[string]string{"type": "Opaque", "keys": "2"}),
+			},
+			kubernetes.ResourceStatefulSets: {
+				row("StatefulSet", "production", "redis", "Available", "20d", map[string]string{"ready": "1/1"}),
+			},
 		},
 	}
 }

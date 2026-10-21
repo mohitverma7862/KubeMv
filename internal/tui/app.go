@@ -31,7 +31,7 @@ func run(ctx context.Context, model *Model) error {
 	tview.Styles.TitleColor = tcell.NewRGBColor(76, 201, 255)
 	tview.Styles.PrimaryTextColor = tcell.NewRGBColor(185, 200, 232)
 
-	header := tview.NewTextView()
+	header := tview.NewTextView().SetDynamicColors(true)
 	nav := tview.NewTextView()
 	table := tview.NewTable().SetSelectable(false, false).SetFixed(1, 0)
 	inspector := tview.NewTextView().SetWrap(true)
@@ -157,6 +157,16 @@ func run(ctx context.Context, model *Model) error {
 			quit = model.OnKey("ctrlp")
 		case tcell.KeyCtrlR:
 			quit = model.OnKey("ctrlr")
+		case tcell.KeyCtrlD:
+			if model.ReadOnly {
+				model.CommandError = "readonly: delete is rejected"
+			} else {
+				model.Confirm = true
+				model.Command = ""
+			}
+			runSideEffects(app, model)
+			paint()
+			return nil
 		case tcell.KeyEscape:
 			quit = model.OnKey("esc")
 		case tcell.KeyEnter:

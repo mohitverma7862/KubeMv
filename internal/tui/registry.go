@@ -60,7 +60,7 @@ var Shortcuts = []Shortcut{
 	{Keys: "y", Label: "YAML", Scope: "inspect"},
 	{Keys: "f", Label: "Forward", Scope: "inspect"},
 	{Keys: "c", Label: "Container", Scope: "inspect"},
-	{Keys: "D", Label: "Delete", Scope: "inspect"},
+	{Keys: "Ctrl-D", Label: "Delete", Scope: "inspect"},
 	{Keys: "l", Label: "Logs", Scope: "row"},
 	{Keys: "s", Label: "Shell", Scope: "row"},
 	{Keys: "d", Label: "Describe", Scope: "row"},

@@ -67,7 +67,8 @@ func TestMovementAndFilter(t *testing.T) {
 
 func TestReferenceLayout(t *testing.T) {
 	model := sampleModel("sample")
-	if !strings.Contains(model.HeaderLine(time.Now()), "Fast Mode (K9s-Parity)") || !strings.Contains(model.HeaderLine(time.Now()), "PRODUCTION") {
+	line := model.HeaderLine(time.Now())
+	if !strings.Contains(line, BrandMark+" KubeMv") || !strings.Contains(line, "Fast Mode (K9s-Parity)") || !strings.Contains(line, "PRODUCTION") {
 		t.Fatal(model.HeaderLine(time.Now()))
 	}
 	if !strings.Contains(model.NavLine(), "[I] Ingresses") || !strings.Contains(model.NavLine(), "[>] More") {
