@@ -17,11 +17,13 @@ func Run() error {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return fmt.Errorf("kubemv opens a terminal console; run it in a terminal")
 	}
-	model := Load(context.Background())
-	return run(&model)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	model := Load(ctx)
+	return run(ctx, &model)
 }
 
-func run(model *Model) error {
+func run(ctx context.Context, model *Model) error {
 	app := tview.NewApplication()
 	tview.Styles.PrimitiveBackgroundColor = tcell.NewRGBColor(2, 8, 23)
 	tview.Styles.ContrastBackgroundColor = tcell.NewRGBColor(8, 67, 122)
@@ -65,7 +67,10 @@ func run(model *Model) error {
 		AddItem(pages, 0, 1, true).
 		AddItem(status, 1, 0, false)
 
-	paint := func() {
+	var frame TableSync
+	watch := newWatchCtrl()
+	var paint func()
+	paint = func() {
 		header.SetText(model.HeaderLine(time.Now()))
 		nav.SetText(model.NavLine())
 		tabs.SetText(model.TabLine())
@@ -76,16 +81,22 @@ func run(model *Model) error {
 		} else {
 			quick.SetText(QuickHelp())
 		}
-		table.SetTitle(" " + model.FilterLine() + " ")
+		table.SetTitle(" " + model.TableTitle(time.Now()) + " ")
 		table.SetBorder(true)
-		table.Clear()
 		columns := columnsFor(model.kind().Path)
-		for col, title := range columns {
-			table.SetCell(0, col, tview.NewTableCell(title).SetSelectable(false).SetTextColor(tcell.ColorCadetBlue))
-		}
 		visible := model.Visible()
-		for rowIndex, item := range visible {
-			for col, value := range cells(item, columns) {
+		plan := frame.Plan(columns, visible, model.Cursor)
+		if plan.Full {
+			table.Clear()
+			for col, title := range columns {
+				table.SetCell(0, col, tview.NewTableCell(title).SetSelectable(false).SetTextColor(tcell.ColorCadetBlue))
+			}
+		}
+		for _, rowIndex := range plan.Paint {
+			if rowIndex >= len(visible) {
+				continue
+			}
+			for col, value := range cells(visible[rowIndex], columns) {
 				cell := tview.NewTableCell(value)
 				if columns[col] == "STATUS" {
 					cell.SetTextColor(statusColor(value))
@@ -94,6 +105,11 @@ func run(model *Model) error {
 					cell.SetBackgroundColor(tcell.NewRGBColor(8, 67, 122))
 				}
 				table.SetCell(rowIndex+1, col, cell)
+			}
+		}
+		for i := 0; i < plan.Drop; i++ {
+			if table.GetRowCount() > 1 {
+				table.RemoveRow(table.GetRowCount() - 1)
 			}
 		}
 		if len(visible) == 0 {
@@ -106,8 +122,10 @@ func run(model *Model) error {
 		} else {
 			pages.HidePage("palette")
 		}
+		watch.Update(model)
 	}
 	paint()
+	go serveWatch(ctx, app, model, watch, paint)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		quit := false

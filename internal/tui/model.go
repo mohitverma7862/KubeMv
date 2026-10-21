@@ -18,30 +18,38 @@ type Kind struct {
 
 // Model is the terminal console state. It does not draw.
 type Model struct {
-	Cluster      string
-	Context      string
-	Namespace    string
-	User         string
-	Production   bool
-	ReadOnly     bool
-	Live         bool
-	Note         string
-	Kinds        []Kind
-	Active       int
-	Rows         map[kubernetes.ResourceKindPath][]kubernetes.ResourceRow
-	Cursor       int
-	Filter       string
-	Filtering    bool
-	Help         bool
-	Workspace    string
-	Commanding   bool
-	Command      string
-	CommandError string
-	Palette      bool
-	Confirm      bool
-	Forwards     int
-	More         bool
-	back         []string
+	Cluster          string
+	Context          string
+	Namespace        string
+	User             string
+	Production       bool
+	ReadOnly         bool
+	Live             bool
+	Note             string
+	Kinds            []Kind
+	Active           int
+	Rows             map[kubernetes.ResourceKindPath][]kubernetes.ResourceRow
+	Cursor           int
+	Filter           string
+	Filtering        bool
+	Help             bool
+	Workspace        string
+	Commanding       bool
+	Command          string
+	CommandError     string
+	Palette          bool
+	Confirm          bool
+	Forwards         int
+	More             bool
+	Connection       string
+	ReconnectAttempt int
+	RetryAfter       time.Duration
+	SyncedAt         time.Time
+	ResourceVersion  string
+	WatchError       string
+	RefreshCount     int
+	back             []string
+	watch            func(kind kubernetes.ResourceKindPath, namespace string) (kubernetes.WatchSource, bool)
 }
 
 // IsProduction reports whether the connected context should show the production badge.
@@ -163,7 +171,7 @@ func (m *Model) OnKey(name string) (quit bool) {
 		m.Palette = !m.Palette
 		return false
 	case "ctrlr":
-		m.Note = "refreshed"
+		m.RefreshCount++
 		return false
 	case "esc":
 		if m.Palette {
@@ -366,13 +374,65 @@ func (m Model) HeaderLine(now time.Time) string {
 	if m.Production {
 		prod = " | PRODUCTION"
 	}
-	conn := "✕ DISCONNECTED"
-	if m.Live {
-		conn = "● LIVE"
-	} else if m.Note != "" {
-		conn = "● SAMPLE"
+	return "KubeMv | Fast Mode (K9s-Parity) | " + empty(m.Cluster) + " | user: " + empty(m.User) + " | context: " + empty(m.Context) + " | namespace: " + empty(m.Namespace) + prod + " | " + m.connectionLabel() + " | " + now.Format("15:04:05")
+}
+
+func (m Model) connectionLabel() string {
+	switch kubernetes.ConnectionState(m.Connection) {
+	case kubernetes.ConnectionLive:
+		return "● LIVE"
+	case kubernetes.ConnectionReconnecting:
+		label := "◌ RECONNECTING"
+		if m.ReconnectAttempt > 0 {
+			label += fmt.Sprintf(" %d", m.ReconnectAttempt)
+		}
+		if m.RetryAfter > 0 {
+			label += " in " + m.RetryAfter.Truncate(time.Second).String()
+		}
+		return label
+	case kubernetes.ConnectionDisconnected:
+		return "✕ DISCONNECTED"
+	default:
+		if m.Live {
+			return "● LIVE"
+		}
+		if m.Note != "" {
+			return "● SAMPLE"
+		}
+		return "✕ DISCONNECTED"
 	}
-	return "KubeMv | Fast Mode (K9s-Parity) | " + empty(m.Cluster) + " | user: " + empty(m.User) + " | context: " + empty(m.Context) + " | namespace: " + empty(m.Namespace) + prod + " | " + conn + " | " + now.Format("15:04:05")
+}
+
+// WatchAge is the time since the last successful list or watch event.
+func (m Model) WatchAge(now time.Time) string {
+	if m.SyncedAt.IsZero() {
+		return "◷ —"
+	}
+	age := now.Sub(m.SyncedAt)
+	if age < 0 {
+		age = 0
+	}
+	return "◷ " + age.Truncate(time.Second).String()
+}
+
+// TableTitle shows the filter, watch age, and resourceVersion.
+func (m Model) TableTitle(now time.Time) string {
+	title := m.FilterLine() + "  " + m.WatchAge(now)
+	if m.ResourceVersion != "" {
+		title += "  rv " + m.ResourceVersion
+	}
+	if kubernetes.ConnectionState(m.Connection) == kubernetes.ConnectionDisconnected && m.WatchError != "" {
+		title += "  " + m.WatchError
+	}
+	return title
+}
+
+// OpenWatch returns the live watch for the active cluster, when one is connected.
+func (m *Model) OpenWatch(kind kubernetes.ResourceKindPath, namespace string) (kubernetes.WatchSource, bool) {
+	if m.watch == nil || kind == "" {
+		return nil, false
+	}
+	return m.watch(kind, namespace)
 }
 
 // StatusLine matches the reference command bar.

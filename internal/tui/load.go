@@ -58,6 +58,15 @@ func loadKube(ctx context.Context) (Model, error) {
 	if model.Namespace == "" {
 		model.Namespace = "all"
 	}
+	if watcher, ok := client.(kube.ResourceWatch); ok {
+		model.watch = func(kind kubernetes.ResourceKindPath, namespace string) (kubernetes.WatchSource, bool) {
+			return watcher.WatchSource(kind, apiNamespace(namespace)), true
+		}
+		model.Connection = string(kubernetes.ConnectionReconnecting)
+		model.ReconnectAttempt = 1
+		model.Live = false
+		return model, nil
+	}
 	var failed []string
 	for _, kind := range model.Kinds {
 		if !kind.Available || kind.Path == "" {
@@ -74,4 +83,11 @@ func loadKube(ctx context.Context) (Model, error) {
 		model.Note = "partial list: " + fmt.Sprint(failed)
 	}
 	return model, nil
+}
+
+func apiNamespace(namespace string) string {
+	if namespace == "" || namespace == "all" || namespace == "*" {
+		return ""
+	}
+	return namespace
 }
