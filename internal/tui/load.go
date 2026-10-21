@@ -58,6 +58,9 @@ func loadKube(ctx context.Context) (Model, error) {
 	if model.Namespace == "" {
 		model.Namespace = "all"
 	}
+	if lookup, ok := client.(kube.OwnerLookup); ok {
+		model.fetchOwner = lookup.LookupOwner
+	}
 	if watcher, ok := client.(kube.ResourceWatch); ok {
 		model.watch = func(kind kubernetes.ResourceKindPath, namespace string) (kubernetes.WatchSource, bool) {
 			return watcher.WatchSource(kind, apiNamespace(namespace)), true

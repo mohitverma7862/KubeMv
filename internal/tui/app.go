@@ -123,6 +123,12 @@ func run(ctx context.Context, model *Model) error {
 			pages.HidePage("palette")
 		}
 		watch.Update(model)
+		model.ScheduleOwnerFetch(func(apply func()) {
+			app.QueueUpdateDraw(func() {
+				apply()
+				paint()
+			})
+		})
 	}
 	paint()
 	go serveWatch(ctx, app, model, watch, paint)

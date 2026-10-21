@@ -32,23 +32,38 @@ func ValidResourceKind(kind string) (ResourceKindPath, bool) {
 	}
 }
 
+// OwnerRef is one controller or owner. It carries no credential material.
+type OwnerRef struct {
+	Kind      string `json:"kind"`
+	Name      string `json:"name"`
+	Namespace string `json:"namespace,omitempty"`
+}
+
+// ContainerRef is a container name and image. It does not include env values.
+type ContainerRef struct {
+	Name  string `json:"name"`
+	Image string `json:"image,omitempty"`
+}
+
 // ResourceRow is a normalized list row for tables and fast navigation.
 type ResourceRow struct {
-	Kind      string            `json:"kind"`
-	Namespace string            `json:"namespace"`
-	Name      string            `json:"name"`
-	Status    string            `json:"status"`
-	Age       string            `json:"age"`
-	Labels    map[string]string `json:"labels,omitempty"`
-	Extra     map[string]string `json:"extra,omitempty"`
+	Kind       string            `json:"kind"`
+	Namespace  string            `json:"namespace"`
+	Name       string            `json:"name"`
+	Status     string            `json:"status"`
+	Age        string            `json:"age"`
+	Labels     map[string]string `json:"labels,omitempty"`
+	Extra      map[string]string `json:"extra,omitempty"`
+	Owners     []OwnerRef        `json:"owners,omitempty"`
+	Containers []ContainerRef    `json:"containers,omitempty"`
 }
 
 // ResourceDetail is returned for the resource detail pane.
 type ResourceDetail struct {
-	Row        ResourceRow `json:"row"`
-	YAML       string      `json:"yaml"`
-	Events     []EventRow  `json:"events,omitempty"`
-	Related    []ResourceRow `json:"related,omitempty"`
+	Row     ResourceRow   `json:"row"`
+	YAML    string        `json:"yaml"`
+	Events  []EventRow    `json:"events,omitempty"`
+	Related []ResourceRow `json:"related,omitempty"`
 }
 
 // EventRow is a compact Kubernetes event.
