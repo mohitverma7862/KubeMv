@@ -157,6 +157,16 @@ func run(ctx context.Context, model *Model) error {
 			quit = model.OnKey("ctrlp")
 		case tcell.KeyCtrlR:
 			quit = model.OnKey("ctrlr")
+		case tcell.KeyCtrlD:
+			if model.ReadOnly {
+				model.CommandError = "readonly: delete is rejected"
+			} else {
+				model.Confirm = true
+				model.Command = ""
+			}
+			runSideEffects(app, model)
+			paint()
+			return nil
 		case tcell.KeyEscape:
 			quit = model.OnKey("esc")
 		case tcell.KeyEnter:

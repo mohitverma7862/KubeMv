@@ -107,11 +107,20 @@ export function dispatchKey(event: KeyInput, ctx: DispatchContext): DispatchActi
   if (key === 'G') return { type: 'last' }
   if (key === 'Enter') return { type: 'open' }
 
-  if (key.length === 1 && key >= 'A' && key <= 'Z') {
-    return { type: 'nav-letter', letter: key }
-  }
+  const navLetter = navLetterAction(key)
+  if (navLetter) return navLetter
 
   return null
+}
+
+/** Nav [K]/[E]/… keys; lowercase letters that are not resource actions (e.g. n, m, r). */
+function navLetterAction(key: string): { type: 'nav-letter'; letter: string } | null {
+  if (key.length !== 1 || !/[a-zA-Z]/.test(key)) return null
+  const lower = key.toLowerCase()
+  const reservedLower = new Set(['j', 'k', 'g', 'l', 's', 'd', 'y', 'e', 'f', 'c', 'a', 'q'])
+  if (key === 'G') return null
+  if (key === lower && reservedLower.has(lower)) return null
+  return { type: 'nav-letter', letter: key.toUpperCase() }
 }
 
 export function focusRegion(target: EventTarget | null): FocusRegion {

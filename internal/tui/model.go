@@ -151,6 +151,14 @@ func (m *Model) OnRune(r rune) (quit bool) {
 		m.clamp()
 		return false
 	}
+	if m.trySelectDigit(r) {
+		m.clamp()
+		return false
+	}
+	if m.trySelectMnemonic(r) {
+		m.clamp()
+		return false
+	}
 	switch r {
 	case 'j':
 		if m.TreeFocus {
@@ -208,13 +216,6 @@ func (m *Model) OnRune(r rune) (quit bool) {
 		if m.exec != nil {
 			m.ExecRequested = true
 		}
-	case 'D':
-		if m.ReadOnly {
-			m.CommandError = "readonly: delete is rejected"
-			return false
-		}
-		m.Confirm = true
-		m.Command = ""
 	case '>':
 		m.More = !m.More
 	}
